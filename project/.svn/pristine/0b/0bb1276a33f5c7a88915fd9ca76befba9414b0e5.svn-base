@@ -1,0 +1,96 @@
+
+package project.debate;
+
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import project.common.dao.AbstractDAO;
+
+
+@Repository("debateDAO")
+public class DebateDAO extends AbstractDAO{
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> selectDebateList(Map<String, Object> map) throws Exception{
+		if (map.get("option") == "전체") {
+			return selectDebatePagingList("debate.selectDebateList2", map);
+		} else if (map.get("option") == "카테고리"){
+			return search("debate.selectDebateList3", map);
+		} else {
+			return selectDebatePagingList("debate.selectDebateList", map);	
+		}
+	} 
+
+	public void insertDebate(Map<String, Object> map) throws Exception{
+		insert("debate.insertDebate", map);
+	}
+
+	public void updateHitCnt(Map<String, Object> map) throws Exception{
+		update("debate.updateHitCnt", map);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> selectDebateDetail(Map<String, Object> map) {
+		return (Map<String, Object>) selectOne("debate.selectDebateDetail", map);
+	}
+
+	public void updateDebate(Map<String, Object> map) throws Exception{
+		update("debate.updateDebate", map);
+	}
+
+	public void deleteDebate(Map<String, Object> map) throws Exception{
+		update("debate.deleteDebate", map);
+	}
+
+	public void myOpinion(Map<String, Object> map) throws Exception{
+		update("debate.updateOpinion", map);
+		if (map.get("option").equals("A")) {
+			update("debate.updateOpinion2", map);
+		} else if (map.get("option").equals("D")) {
+			update("debate.updateOpinion3", map);	
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> selectMyDebate(Map<String, Object> map) throws Exception {
+		return (Map<String, Object>) selectOne("debate.selectMyDebate", map);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> openMyDebate(Map<String, Object> map) throws Exception {
+		return search("debate.openMyDebate", map);
+	}
+
+	public void insertDebateColumn(Map<String, Object> map) throws Exception {
+		insert("debate.insertDebateColumn", map);
+	}
+
+	public void insertDebateTopic(Map<String, Object> map) throws Exception {
+		insert("debate.insertDebateTopic", map);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> debateReply(Map<String, Object> map) throws Exception {
+		return search("debate.debateReply", map);	
+	}
+
+	public void insertDebateReply(Map<String, Object> map) throws Exception {
+		insert("debate.insertDebateReply", map);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> selectFavoriteList(Map<String, Object> map) throws Exception{
+		return search("debate.selectFavoriteList", map);
+	}
+
+	public void insertFavorite(Map<String, Object> map) throws Exception{
+		insert("debate.insertFavorite", map);
+	}
+
+	public void ox(Map<String, Object> map) throws Exception{
+		update("debate.ox", map);
+	}
+}
+
+

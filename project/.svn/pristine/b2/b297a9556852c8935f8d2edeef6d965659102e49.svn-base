@@ -1,0 +1,174 @@
+<%@ include file="/WEB-INF/include/include-top.jsp"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<body>
+	<div class="chatRoom-wrapper">
+   	<div class="chatRoom-left">
+		<div class="chatRoom-title">${title}</div>
+			<div class='j-message' id='j-message'></div>
+        	<input id="myChatId" type="hidden" value="${sName}">
+        	<div class="chatRoom-inputbox">
+        		<input id="inputMessage" autofocus="autofocus" type="text" onkeydown="if (event.keyCode == 13) document.getElementById('send').click()"/>
+        		<input id="send" type="submit" value="보내기" onclick="send()" />
+        	</div>
+   		<a href="javascript:erase_chat()" >내용 지우기</a>
+       	</div>
+			<div class="chatRoom-right">
+				<!-- <div class="chat-online">
+					<div>현재 접속자 목록 (<span id="totalMember">0</span>)</div>
+					<div id="currentMember">	</div>
+				</div> -->
+				<div class="chatRoom-note">
+				
+  		<h2> 자료 검색</h2>
+  		<h6> 자료를 Drag & drop 해 주세요</h6>
+  			<form id="search_form" action="javascript:all_search_for_chat('web')" method="post">
+  			<div>
+  			<input type="text" width="20" id="query" name="query"/>
+  			<input type="submit" value="웹으로 검색"/>
+  			<%-- <a target="_blank" href='<c:url value='https://www.youtube.com/'/>'><img src="/images/YouTube-logo.png"></a> --%>
+  			</div>
+				<div class="">
+				  <ul class="nav nav-tabs" id="category">
+				    <li class="defaultSelect"><a data-toggle="tab" onclick="javascript:all_search_for_chat('web')">웹</a></li>
+				    <li><a data-toggle="tab" onclick="javascript:all_search_for_chat('board')">게시판</a></li>
+				    <li><a data-toggle="tab" onclick="javascript:all_search_for_chat('knowledge')">지식</a></li>
+				    <li><a data-toggle="tab" onclick="javascript:all_search_for_chat('blog')">블로그</a></li>
+				    <li><a data-toggle="tab" onclick="javascript:all_search_for_chat('image')">사진</a></li>
+				    <li><a data-toggle="tab" onclick="javascript:all_search_for_chat('vclip')">동영상</a></li>
+				  </ul>
+			  </div>
+		  </form>
+
+		  <div class="tab-content">
+		    <div id="home" class="tab-pane fade in active">
+		      <p id="results">검색어를 입력해주세요.</p>
+		    </div>
+		  </div>
+		</div>
+	</div>
+</div>
+</body>
+    <script>
+    (function() {
+        var cx = '015412256135859356310:svdlcbj2eui';
+        var gcse = document.createElement('script');
+        gcse.type = 'text/javascript';
+        gcse.async = true;
+        gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cse.google.com/cse.js?cx=' + cx;
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(gcse, s);
+      })();
+    
+    var profilePhoto = "<img src ='<c:url value='/images/members/${sId}.jpg'/>' width='35px;' height='35px;'>"
+    var textarea = document.getElementById("j-message");
+    var webSocket = new WebSocket('ws://192.168.1.25:8081/project/broadcasting/${sName}');
+    var inputMessage = document.getElementById('inputMessage');
+        
+    webSocket.onerror = function(event) {
+      onError(event)
+    };
+    
+    webSocket.onopen = function(event) {
+      onOpen(event)
+    };
+    
+    webSocket.onclose = function(event) {
+        onClose(event)
+     };
+    
+    webSocket.onmessage = function(event) {
+      	onMessage(event)
+    };
+    
+    function onMessage(event) {
+        var contents = event.data;
+      // 메시지 올때 클래스 추가, 알림이면 join으로
+        if ($(contents).hasClass("join")) {
+			$(contents).appendTo('.j-message');
+        } else {
+	        $(contents).appendTo('.j-message').addClass('bubble');
+        }
+        checkTextareaHeight();
+    }
+    // 날짜 저장
+    var today;
+    function getToday() {
+    	today = new Date();
+	    var dd = today.getDate();
+	    var mm = today.getMonth() + 1; //January is 0!
+	    var yyyy = today.getFullYear();
+	    var hour = today.getHours();
+	    var min = today.getMinutes();
+	    var sec = today.getSeconds();
+		today = /* yyyy +'/'+*/ mm +'/'+dd + ' ' +  hour + '시' + min + '분';
+    }
+   	/* 접속 알림 */
+    function onOpen(event) {
+   		getToday();
+        var successId = '<div class="join" style="text-align:center"><span class="joinMsg">' + document.getElementById('myChatId').value + '님이 접속하였습니다. (' + today + ')</span></div>';
+        $(successId).appendTo('.j-message');
+        webSocket.send(successId);
+    }
+    function onError(event) {
+      alert(event.data);
+    }
+    function onClose(event) {
+        console.log("bye");
+    }
+    // 메세지 전송
+    function send() {
+    	if ((inputMessage.value != "") && (inputMessage.value != null)) {
+    		getToday();
+        	var msg = $('#inputMessage').val();
+        	if(msg.indexOf('http') === 0)
+        	{
+        		if (msg.indexOf('https://youtu.be') === 0) {
+        			msg = msg.split('.be/')[1];
+        			msg = '<iframe width="420" height="315" src="https://www.youtube.com/embed/' + msg + '" frameborder="0" allowfullscreen></iframe>';
+        		} else if (isImage == 1) {
+        			msg = '<a href="javascript:opReSize(\''+msg+'\')">'+msg+'</a><div class="box"><iframe src="'+msg+'" width = "500px" height = "500px"></iframe>';
+        		} else {
+	        	  msg = '<a target="_blank" href="'+msg + '/">'+msg+'</a><div class="box"><iframe src="'+msg+'" width = "500px" height = "500px"></iframe>';
+        		}
+        	}
+        	// 있는 상태에서 지워서 넘김
+        	var message = '<div><div class="bubble-innertop"><div class="bubble-photo">' + profilePhoto +'</div><div class="bubble-date">' + today + '</div><div class="bubble-id">'+ document.getElementById('myChatId').value + '</div></div> <div class="bubble-message">' + msg + '</div></div><br style="clear:both" />';
+        	$(message).appendTo('.j-message').addClass("bubble2").css('text-align','right');
+			$(message).attr('class','bubble');        
+        	webSocket.send(message);
+        	
+        	inputMessage.value = "";
+        	inputMessage.focus();
+        	
+        	checkTextareaHeight();
+    	}
+    }
+    
+    // 업데이트시 밑으로 오토스크롤
+    function checkTextareaHeight(){
+    	   var textarea = document.getElementById("j-message");
+    	   if(textarea.selectionStart == textarea.selectionEnd) {
+    	      textarea.scrollTop = textarea.scrollHeight;
+    	   }
+    }
+    
+	// 퇴장 알림    
+    $( window ).unload(function() {
+		getToday();
+        var successId = '<div class="join" style="text-align:center"><span>' + document.getElementById('myChatId').value + '님이 퇴장하였습니다. (' + today + ')</span></div>';
+        $(successId).appendTo('.j-message');
+        webSocket.send(successId);
+    	webSocket.close();
+   	});
+	/* function showURL() {
+	    alert(document.getElementById("naver").contentWindow.location);
+	} */
+	
+	// 채팅내용 지우기
+	function erase_chat() {
+		document.getElementById('j-message').innerHTML = "";
+	}
+  </script>
+</html>

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="debate">
+     
+     <!-- 옵션 있을 때 where 조건주는 쿼리 -->
+	<select id="selectDebateList" parameterType="hashmap" resultType="hashmap">
+	<include refid="common.pagingPre"/> 
+	<![CDATA[
+         SELECT
+     	 	ROW_NUMBER() OVER (ORDER BY IDX) RNUM,
+     		 A.IDX,
+			A.CTG,
+			A.IMG,
+			A.TITLE,
+			A.CONT,
+			A.TAG,
+			A.RECOMMEND,
+			B.MALE_A + B.FEMALE_A AGREE,
+			B.MALE_D + B.FEMALE_D DISAGREE,
+		    B.TWENTY_A + B.TWENTY_D TWENTY,
+		    B.THIRTY_A + B.THIRTY_D THIRTY,
+		    B.FORTY_A + B.FORTY_D FORTY,
+		    B.FIFTY_A + B.FIFTY_D FIFTY,
+		    B.ETC_A + B.ETC_D ETC,
+			A.HIT
+        FROM
+            DEBATE A
+            JOIN
+            DEBATE_COUNT B
+        ON(
+        	 A.IDX = B.D_INDEX
+           AND CTG = '${option}')
+    ]]>
+    <include refid="common.pagingPost"/> 
+	</select>
+	
+	<!-- 옵션 : 전체 -->
+	<select id="selectDebateList2" parameterType="hashmap" resultType="hashmap">
+	<include refid="common.pagingPre"/> 
+    <![CDATA[
+         SELECT
+      		ROW_NUMBER() OVER (ORDER BY IDX) RNUM,
+      		A.IDX,
+			A.CTG,
+			A.IMG,
+			A.TITLE,
+			A.CONT,
+			A.TAG,
+			A.RECOMMEND,
+			B.MALE_A + B.FEMALE_A AGREE,
+			B.MALE_D + B.FEMALE_D DISAGREE,
+		    B.TWENTY_A + B.TWENTY_D TWENTY,
+		    B.THIRTY_A + B.THIRTY_D THIRTY,
+		    B.FORTY_A + B.FORTY_D FORTY,
+		    B.FIFTY_A + B.FIFTY_D FIFTY,
+		    B.ETC_A + B.ETC_D ETC,
+			A.HIT
+        FROM
+            DEBATE A
+            JOIN
+            DEBATE_COUNT B
+        ON(
+        	 A.IDX = B.D_INDEX
+			)
+    ]]>
+    <include refid="common.pagingPost"/> 
+	</select>
+	
+	<!-- 카테고리 개수 조회용 -->
+	<select id="selectDebateList3" parameterType="hashmap" resultType="hashmap">
+    <![CDATA[
+        SELECT
+      		A.IDX,
+			A.CTG,
+			A.IMG,
+			A.TITLE,
+			A.CONT,
+			A.TAG,
+			A.RECOMMEND,
+			B.MALE_A + B.FEMALE_A AGREE,
+			B.MALE_D + B.FEMALE_D DISAGREE,
+		    B.TWENTY_A + B.TWENTY_D TWENTY,
+		    B.THIRTY_A + B.THIRTY_D THIRTY,
+		    B.FORTY_A + B.FORTY_D FORTY,
+		    B.FIFTY_A + B.FIFTY_D FIFTY,
+		    B.ETC_A + B.ETC_D ETC,
+			A.HIT
+        FROM
+            DEBATE A
+            JOIN
+            DEBATE_COUNT B
+        ON(
+        	 A.IDX = B.D_INDEX
+			)
+        ORDER BY
+        	A.IDX
+    ]]>
+	</select>
+	
+	<!-- 상세보기 -->
+	<select id="selectDebateDetail" parameterType="hashmap" resultType="hashmap">
+    <![CDATA[
+      SELECT
+     		A.IDX,
+			A.CTG,
+			A.IMG,
+			A.TITLE,
+			A.CONT,
+			A.TAG,
+			A.RECOMMEND,
+			B.MALE_A + B.FEMALE_A AGREE,
+			B.MALE_D + B.FEMALE_D DISAGREE,
+	        TRUNC(B.MALE_A/DECODE(B.MALE_A + B.MALE_D,0,1,B.MALE_A + B.MALE_D)*100,0) MALE,
+			TRUNC(B.FEMALE_A/DECODE(B.FEMALE_A + B.FEMALE_D,0,1,B.FEMALE_A + B.FEMALE_D)*100,0) FEMALE,
+			TRUNC(B.TWENTY_A /DECODE(B.TWENTY_A + B.TWENTY_D,0,1,B.TWENTY_A + B.TWENTY_D)*100,0) TWENTY,
+			TRUNC(B.THIRTY_A /DECODE(B.THIRTY_A + B.THIRTY_D,0,1,B.THIRTY_A + B.THIRTY_D)*100,0) THIRTY,
+		    TRUNC(B.FORTY_A /DECODE(B.FORTY_A + B.FORTY_D,0,1,B.FORTY_A + B.FORTY_D)*100,0) FORTY,
+		    TRUNC(B.FIFTY_A /DECODE(B.FIFTY_A + B.FIFTY_D,0,1,B.FIFTY_A + B.FIFTY_D)*100,0) FIFTY,
+		    TRUNC(B.ETC_A / DECODE(B.ETC_A + B.ETC_D,0,1,B.ETC_A + B.ETC_D)*100,0 )ETC,
+			A.HIT
+        FROM
+            DEBATE A
+            JOIN
+            DEBATE_COUNT B
+        ON(
+        	A.IDX = ${idx} AND
+          	A.IDX = B.D_INDEX)
+    ]]>
+	</select>
+	
+	<!-- 현재 주제에 대한 찬반 -->
+	<insert id="insertOpinion" parameterType="hashmap">
+    <![CDATA[ 
+    	INSERT INTO DEBATE_STATUS 
+    	(
+    		ID,
+    		D_INDEX,
+    		OP
+    	)
+    	VALUES
+    	( 
+    		'${user}',
+    		'${idx}',
+    		'${opinion}'
+    	) 
+    ]]>
+	</insert>
+	
+	<!-- 투표 결과 반영 <찬성> -->
+	<update id="updateDebateCount" parameterType="hashmap">
+    <![CDATA[ 
+    	UPDATE DEBATE_COUNT 
+    		SET 
+    			${sex} = ${sex} + 1,
+    			${age} = ${age} + 1
+    		WHERE 
+    			D_INDEX = ${idx}]]>
+	</update>
+	
+
+	
+	<!-- 내 투표 조회용 -->
+	<select id="selectMyDebate" parameterType="hashmap" resultType="hashmap">
+    <![CDATA[
+        SELECT
+            OP
+        FROM
+            DEBATE_STATUS
+        WHERE
+        	ID = '${user}' AND
+    		D_INDEX = ${idx}
+    ]]>
+	</select>
+	
+	<!-- 내 투표 전체조회 -->
+	<select id="openMyDebate" parameterType="hashmap" resultType="hashmap">
+    <![CDATA[
+         SELECT 
+         	ROWNUM,
+		  	A.IDX, 
+       		A.TITLE,
+        	A.CTG,
+  			NVL(B.OP, 'N') OP
+		FROM 
+  			DEBATE A
+  			LEFT OUTER JOIN
+  			DEBATE_STATUS B
+		ON 
+  			B.ID = '${user}' AND
+			B.D_INDEX = A.IDX
+    ]]>
+	</select>
+	
+	<!-- 디베이트에 주제 삽입 -->
+	<insert id="insertDebateTopic" parameterType="hashmap">
+    <![CDATA[
+        INSERT INTO DEBATE
+        (
+        	IDX,
+        	CTG,
+        	TITLE,
+        	CONT,
+        	TAG,
+        	RECOMMEND,
+        	HIT,
+        	WRITER
+        )
+        VALUES
+        ( 
+        	#{idx},
+        	#{ctg},
+        	#{title},
+        	#{cont},
+        	#{tag},
+        	0,
+        	0,
+        	#{writer}
+        )
+    ]]>
+	</insert>
+	
+	<insert id="insertDebateCount" parameterType="hashmap">
+    <![CDATA[
+        INSERT INTO DEBATE_COUNT
+        (
+        	D_INDEX
+        )
+        VALUES
+        ( 
+        	#{idx}
+        )
+    ]]>
+	</insert>
+	
+	<insert id="insertDebate" parameterType="hashmap" useGeneratedKeys="true" keyProperty="IDX">
+    <selectKey keyProperty="IDX" resultType="string" order="BEFORE">
+        SELECT SEQ_DEBATE_IDX.NEXTVAL FROM DUAL
+    </selectKey>
+    <![CDATA[
+         
+        INSERT INTO DEBATE
+        (
+            IDX,
+            TITLE, 
+            CONTENTS, 
+            HIT_CNT, 
+            DEL_GB, 
+            CREA_DTM, 
+            CREA_ID
+        )
+        VALUES
+        (
+            #{IDX}, 
+            #{TITLE}, 
+            #{CONTENTS}, 
+            0, 
+            'N', 
+            SYSDATE, 
+            'Admin'
+        )
+    ]]>
+	</insert>
+
+	<update id="updateHitCnt" parameterType="hashmap">
+    <![CDATA[
+        UPDATE DEBATE 
+        SET
+            HIT_CNT = NVL(HIT_CNT, 0) + 1
+        WHERE
+            IDX = #{IDX}    
+    ]]>
+	</update>
+ 
+     <update id="updateDebate" parameterType="hashmap">
+    <![CDATA[
+        UPDATE DEBATE 
+        SET
+            TITLE = #{TITLE},
+            CONTENTS = #{CONTENTS}
+        WHERE
+            IDX = #{IDX}    
+    ]]>
+	</update>
+
+	<update id="deleteDebate" parameterType="hashmap">
+    <![CDATA[
+        UPDATE DEBATE
+        SET
+            DEL_GB = 'Y'
+        WHERE
+            IDX = #{IDX}
+    ]]>
+	</update>
+	
+	<!-- 댓글조회 -->
+	<select id="debateReply" parameterType="hashmap" resultType="hashmap">
+	<![CDATA[
+        SELECT
+            REPLY_INDEX,
+			REPLY_ID,
+			REPLY_CONTENTS,
+			REPLY_AGREE,
+			REPLY_O,
+			REPLY_X,
+			IDX
+        FROM
+            DEBATE_REPLY
+        WHERE
+        	REPLY_INDEX = '${idx}'
+        ORDER BY
+        	REPLY_O desc
+    ]]>
+	</select>
+	
+	<!-- 댓글삽입 -->
+	<insert id="insertDebateReply" parameterType="hashmap" useGeneratedKeys="true" keyProperty="IDX">
+    <selectKey keyProperty="IDX" resultType="string" order="BEFORE">
+        SELECT REPLY_SEQ.NEXTVAL FROM DUAL
+    </selectKey>
+    <![CDATA[
+        INSERT INTO DEBATE_REPLY
+        (
+        	REPLY_INDEX,
+        	REPLY_ID,
+        	REPLY_AGREE,
+        	REPLY_CONTENTS,
+        	IDX
+        )
+        VALUES
+        ( 
+        	#{reply_idx},
+        	#{reply_id},
+        	#{reply_agree},
+        	#{reply_contents},
+        	#{IDX}
+        )
+    ]]>
+	</insert>
+	
+	<!-- 즐겨찾기 조회 -->
+	<select id="selectFavoriteList" parameterType="hashmap" resultType="hashmap">
+    <![CDATA[
+        SELECT
+        	ID,
+        	F_INDEX
+        FROM
+            DEBATE_FAVORITE
+        WHERE
+        	ID = #{id} and
+        	F_INDEX = #{index}
+    ]]>
+	</select>
+	
+	<!-- 즐겨찾기 추가 -->
+	<insert id="insertFavorite">
+    <![CDATA[
+        INSERT INTO DEBATE_FAVORITE
+        (
+        	ID,
+        	F_INDEX
+        )
+        VALUES
+        ( 
+        	#{id},
+        	#{index}
+        )
+    ]]>
+	</insert>
+	
+	<update id="ox" parameterType="hashmap">
+    <![CDATA[
+        UPDATE DEBATE_REPLY
+        SET
+            REPLY_${OX} = REPLY_${OX}+1
+        WHERE
+            IDX = #{IDX}    
+    ]]>
+	</update>
+	
+	
+</mapper>

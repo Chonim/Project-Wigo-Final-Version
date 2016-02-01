@@ -1,0 +1,278 @@
+<%@ include file="/WEB-INF/include/include-top.jsp"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<link rel="stylesheet" href="//cdn.quilljs.com/0.20.1/quill.snow.css" />
+</head>
+<body>
+
+<!-- submit form -->
+<form id="listForm" name="listForm" action="<c:url value='/debate/openDebateList.do' />" method="post"></form>
+<form id="writeForm" name="writeForm" enctype="multipart/form-data" action="<c:url value='/debate/uploadDebate.do' />" method="post">
+	<input type="hidden" name="enroll_title" id="enroll_title" value="">
+	<input type="hidden" name="enroll_contents" id="enroll_contents" value="">
+	
+	<div class="quill-wrapper">
+	<h3> 토론주제 등록하기</h3>
+	
+	<div class="enroll-input-div"> 
+	<span>카테고리</span> &nbsp;&nbsp; 
+		<input type="radio" name="enroll_ctg" id="" value="교육" checked> 교육
+		<input type="radio" name="enroll_ctg" id="" value="사회"> 사회
+		<input type="radio" name="enroll_ctg" id="" value="문화"> 문화
+		<input type="radio" name="enroll_ctg" id="" value="정책"> 정책
+	</div>
+	
+	<div class="enroll-input-div">
+	<span>이미지</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<input type="file" name="enroll_img" id="enroll_img">
+	</div>
+	
+	<div class="enroll-input-div">
+	<span>태그</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="text" class="enroll-input-div-tag" name="enroll_tag" id="enroll_tag"> 태그구분은 /로 해주세요.<br/>
+	</div>
+		
+	<!-- title -->
+		<div id = "title-editor" class = "title-editor ql-container ql-snow"  >
+		</div>
+	<!-- Create the toolbar container -->
+		<div id="toolbar" class="toolbar ql-toolbar ql-snow">
+			<span class="ql-format-group">
+				<span class = "ql-firstheader ql-format-button"></span>
+			</span>
+			<span class="ql-format-group">
+				<select title = "Size" class="ql-size">
+					<option value="14px">Small</option>
+					<option value="18px" selected>Normal</option>
+					<option value="26px">Large</option>
+					<option value="36px">Huge</option>
+				</select>
+			</span>
+			<span class="ql-format-group">
+				<span title = "bold" class="ql-bold ql-format-button"></span>
+				<span class="ql-format-separator"></span> 
+				<span title = "italic"class="ql-italic ql-format-button"></span>
+				<span class="ql-format-separator"></span>
+				<span title = "strike"class="ql-strike ql-format-button"></span>
+				<span class="ql-format-separator"></span>
+				<span title = "underline"class="ql-underline ql-format-button"></span>
+			</span>
+			<span class = "ql-format-group">
+				<span title="List" class="ql-format-button ql-list"></span>
+				<span class="ql-format-separator"></span>
+				<span title="Bullet" class="ql-format-button ql-bullet"></span>
+				<span class="ql-format-separator"></span>
+				<select title = "Align" class = "ql-align">
+			        	<option value="left" selected></option>
+			          	<option value="center"></option>
+			          	<option value="right"></option>
+			          	<option value="justify"></option>
+			    </select>
+	        </span>
+	        <span class="ql-format-group">
+        <select title="Text Color" class="ql-color">
+            <option value="rgb(0, 0, 0)" label="rgb(0, 0, 0)" selected=""></option>
+            <option value="rgb(230, 0, 0)" label="rgb(230, 0, 0)"></option>
+            <option value="rgb(255, 153, 0)" label="rgb(255, 153, 0)"></option>
+            <option value="rgb(255, 255, 0)" label="rgb(255, 255, 0)"></option>
+            <option value="rgb(0, 138, 0)" label="rgb(0, 138, 0)"></option>
+            <option value="rgb(0, 102, 204)" label="rgb(0, 102, 204)"></option>
+            <option value="rgb(153, 51, 255)" label="rgb(153, 51, 255)"></option>
+            <option value="rgb(255, 255, 255)" label="rgb(255, 255, 255)"></option>
+            <option value="rgb(250, 204, 204)" label="rgb(250, 204, 204)"></option>
+            <option value="rgb(255, 235, 204)" label="rgb(255, 235, 204)"></option>
+            <option value="rgb(255, 255, 204)" label="rgb(255, 255, 204)"></option>
+            <option value="rgb(204, 232, 204)" label="rgb(204, 232, 204)"></option>
+            <option value="rgb(204, 224, 245)" label="rgb(204, 224, 245)"></option>
+            <option value="rgb(235, 214, 255)" label="rgb(235, 214, 255)"></option>
+            <option value="rgb(187, 187, 187)" label="rgb(187, 187, 187)"></option>
+            <option value="rgb(240, 102, 102)" label="rgb(240, 102, 102)"></option>
+            <option value="rgb(255, 194, 102)" label="rgb(255, 194, 102)"></option>
+            <option value="rgb(255, 255, 102)" label="rgb(255, 255, 102)"></option>
+            <option value="rgb(102, 185, 102)" label="rgb(102, 185, 102)"></option>
+            <option value="rgb(102, 163, 224)" label="rgb(102, 163, 224)"></option>
+            <option value="rgb(194, 133, 255)" label="rgb(194, 133, 255)"></option>
+            <option value="rgb(136, 136, 136)" label="rgb(136, 136, 136)"></option>
+            <option value="rgb(161, 0, 0)" label="rgb(161, 0, 0)"></option>
+            <option value="rgb(178, 107, 0)" label="rgb(178, 107, 0)"></option>
+            <option value="rgb(178, 178, 0)" label="rgb(178, 178, 0)"></option>
+            <option value="rgb(0, 97, 0)" label="rgb(0, 97, 0)"></option>
+            <option value="rgb(0, 71, 178)" label="rgb(0, 71, 178)"></option>
+            <option value="rgb(107, 36, 178)" label="rgb(107, 36, 178)"></option>
+            <option value="rgb(68, 68, 68)" label="rgb(68, 68, 68)"></option>
+            <option value="rgb(92, 0, 0)" label="rgb(92, 0, 0)"></option>
+            <option value="rgb(102, 61, 0)" label="rgb(102, 61, 0)"></option>
+            <option value="rgb(102, 102, 0)" label="rgb(102, 102, 0)"></option>
+            <option value="rgb(0, 55, 0)" label="rgb(0, 55, 0)"></option>
+            <option value="rgb(0, 41, 102)" label="rgb(0, 41, 102)"></option>
+            <option value="rgb(61, 20, 102)" label="rgb(61, 20, 102)"></option>
+        </select>
+        <span class="ql-format-separator"></span>
+        <select title="Background Color" class="ql-background">
+            <option value="rgb(0, 0, 0)" label="rgb(0, 0, 0)"></option>
+            <option value="rgb(230, 0, 0)" label="rgb(230, 0, 0)"></option>
+            <option value="rgb(255, 153, 0)" label="rgb(255, 153, 0)"></option>
+            <option value="rgb(255, 255, 0)" label="rgb(255, 255, 0)"></option>
+            <option value="rgb(0, 138, 0)" label="rgb(0, 138, 0)"></option>
+            <option value="rgb(0, 102, 204)" label="rgb(0, 102, 204)"></option>
+            <option value="rgb(153, 51, 255)" label="rgb(153, 51, 255)"></option>
+            <option value="rgb(255, 255, 255)" label="rgb(255, 255, 255)" selected=""></option>
+            <option value="rgb(250, 204, 204)" label="rgb(250, 204, 204)"></option>
+            <option value="rgb(255, 235, 204)" label="rgb(255, 235, 204)"></option>
+            <option value="rgb(255, 255, 204)" label="rgb(255, 255, 204)"></option>
+            <option value="rgb(204, 232, 204)" label="rgb(204, 232, 204)"></option>
+            <option value="rgb(204, 224, 245)" label="rgb(204, 224, 245)"></option>
+            <option value="rgb(235, 214, 255)" label="rgb(235, 214, 255)"></option>
+            <option value="rgb(187, 187, 187)" label="rgb(187, 187, 187)"></option>
+            <option value="rgb(240, 102, 102)" label="rgb(240, 102, 102)"></option>
+            <option value="rgb(255, 194, 102)" label="rgb(255, 194, 102)"></option>
+            <option value="rgb(255, 255, 102)" label="rgb(255, 255, 102)"></option>
+            <option value="rgb(102, 185, 102)" label="rgb(102, 185, 102)"></option>
+            <option value="rgb(102, 163, 224)" label="rgb(102, 163, 224)"></option>
+            <option value="rgb(194, 133, 255)" label="rgb(194, 133, 255)"></option>
+            <option value="rgb(136, 136, 136)" label="rgb(136, 136, 136)"></option>
+            <option value="rgb(161, 0, 0)" label="rgb(161, 0, 0)"></option>
+            <option value="rgb(178, 107, 0)" label="rgb(178, 107, 0)"></option>
+            <option value="rgb(178, 178, 0)" label="rgb(178, 178, 0)"></option>
+            <option value="rgb(0, 97, 0)" label="rgb(0, 97, 0)"></option>
+            <option value="rgb(0, 71, 178)" label="rgb(0, 71, 178)"></option>
+            <option value="rgb(107, 36, 178)" label="rgb(107, 36, 178)"></option>
+            <option value="rgb(68, 68, 68)" label="rgb(68, 68, 68)"></option>
+            <option value="rgb(92, 0, 0)" label="rgb(92, 0, 0)"></option>
+            <option value="rgb(102, 61, 0)" label="rgb(102, 61, 0)"></option>
+            <option value="rgb(102, 102, 0)" label="rgb(102, 102, 0)"></option>
+            <option value="rgb(0, 55, 0)" label="rgb(0, 55, 0)"></option>
+            <option value="rgb(0, 41, 102)" label="rgb(0, 41, 102)"></option>
+            <option value="rgb(61, 20, 102)" label="rgb(61, 20, 102)"></option>
+        </select> 
+        </span>
+	        <span class="ql-format-group"> 
+		        <span title="Link" class="ql-format-button ql-link"></span> 
+		        <span class="ql-format-separator"></span> 
+		        <span title="Image" class="ql-format-button ql-image"></span>
+			</span>
+		</div>
+		
+		<!-- Create the editor container -->
+		<div id = "editor" class = "editor ql-container ql-snow"></div>
+	<!-- 전송 -->
+	<div class ="submit">
+		<input type="button" class="btn btn-default" id="btn-write" onclick="formSubmit_write();" value="작성하기" style="font-weight: bold;">
+		<input type="button" class="btn btn-default" id="btn-list" onclick="formSubmit_list();" value="목록으로" style="font-weight: bold;">
+	</div>
+		
+	</div>
+</form>
+<script>
+function formSubmit_write() {
+	//null check
+	document.getElementById('enroll_title').value = title.getText(0,title.getLength());
+	document.getElementById('enroll_contents').value = editor.getHTML();
+	
+	if (document.getElementById('enroll_img').value == null || document.getElementById('enroll_img').value == "") {
+		alert("이미지가 없습니다!");
+		document.getElementById('enroll_img').focus();
+		return false;
+	} else {
+		writeForm.submit();
+	}
+}
+function formSubmit_list() {
+	listForm.submit();
+}
+</script>
+<!-- Include the Quill library -->
+<script src="//cdn.quilljs.com/0.20.1/quill.js"></script>
+
+<!-- Initialize Quill editor -->
+<script>
+<!--    title-edior       -->
+var title = new Quill('#title-editor', {
+	'toolbar': { container: '#title-toolbar' },
+	 styles: {
+		    '.title-editor.ql-container.ql-snow': {
+		    'padding-top':'12px',
+			'min-height':'50px',
+			'text-align':'center',
+			'font-size':'30px'
+		    }
+		  },
+	theme : 'snow',
+});
+
+title.on('text-change', function(delta, source) {
+	console.log('Editor contents have changed', delta);
+});
+
+var starttitle = '제목을 입력하세요';
+
+title.insertText(0, starttitle, {
+  	'italic': true,
+	'color': '#999999',
+});
+
+title.on('selection-change', function(range) {
+	  if (range) {
+	    if (range.start == range.end) {
+	      console.log('User cursor is on', range.start);
+	      if (starttitle.length>0){
+	    	  starttitle='';
+	    	  title.deleteText(0,9);
+	      }
+	    } else {
+	      var text = title.getText(range.start, range.end);
+	      console.log('User has highlighted', text);
+	    }
+	  } else {
+	    console.log('Cursor not in the editor');
+	  }
+});
+
+<!--    main-edior       -->
+var editor = new Quill('#editor', {
+	modules: {
+	    'toolbar': { container: '#toolbar' },
+	    'image-tooltip': true,
+	    'link-tooltip': true
+	  },
+	 styles: {
+		    '.editor.ql-container.ql-snow': {
+		      'font-size': '16px',
+		    }
+		  },
+	theme: 'snow',
+	});
+
+editor.on('text-change', function(delta, source) {
+	console.log('Editor contents have changed', delta);
+});
+
+var start = '내용을 입력하세요';
+
+editor.insertText(0, start, {
+  'italic': true,
+  'color': '#999999'
+});
+
+editor.on('selection-change', function(range) {
+	  if (range) {
+	    if (range.start == range.end) {
+	    	
+	      	console.log('User cursor is on', range.start);
+	      	if (start.length>0){
+	    		start='';
+	    	  	editor.deleteText(0,9);
+	      }
+	    } else {
+	      var text = editor.getText(range.start, range.end);
+	      console.log('User has highlighted', text);
+	    }
+	  } else {
+	    console.log('Cursor not in the editor');
+	  }
+});
+</script>
+</body>
+</html>

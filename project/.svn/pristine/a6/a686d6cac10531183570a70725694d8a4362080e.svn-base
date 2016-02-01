@@ -1,0 +1,503 @@
+<%@ include file="/WEB-INF/include/include-top.jsp"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+	<script src="<c:url value='/js/thumbnail.js'/>" charset="utf-8"></script>
+</head>
+
+<!-- 제목을 대화방에 키워드로 넘김 -->
+<body id="myPage" onload="search_query(); favorite('${sId}', '${map.IDX}', '0');">
+	<form name="oForm" id="oForm" method="post" action="<c:url value='/debate/openDebateDetail.do' />">
+		<input type="hidden" name="opinion" id="opinion" value="">
+		<input type="hidden" name="idx" id="idx" value="${map.IDX}">
+	</form>
+
+	<div class="body60">
+		<div class= "debateDetail-title-img" style="background: url('<c:url value='/images/debate/${map.IDX}.jpg'/>');
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: contain;"> </div>
+		
+		<div class= "debateDetail-title">	${map.TITLE} 
+			<div class="debateDetail-f-y" onclick="favorite('${sId}', '${map.IDX}', '1');"></div> 
+			<div class="debateDetail-f-b" onclick="favorite('${sId}', '${map.IDX}', '1');"></div>
+	</div>
+
+		<!-- 제목을 대화방에 키워드로 넘김 -->
+		<form name="keywordForm" id="keywordForm" method="post" action="<c:url value='/chat/openChat.do' />">
+			<input type="hidden" id="keyword" name="keyword" value="${map.TITLE}">
+		</form>
+		
+		<div class= "debateDetail-cont"> &nbsp; <div style="width:70%;font-size:18px;margin-left:15%">${map.CONT}</div>&nbsp;
+		
+		<!-- 태그 --> 
+			<div class="debateDetail-tags">
+				<strong>태그 :</strong>
+				<c:set var="tags" value="${fn:split(map.TAG, '/')}" />
+				<c:forEach var="i" begin="0" end="${fn:length(tags)-1}" step="1" items="${tags}">
+					<a href="#" onclick="search_query2(this.name)" class="tag" name="${i}"> ${i} </a> &nbsp;
+				</c:forEach>
+			</div>
+			
+		<!-- 태그이미지 썸네일 -->
+		<div id="results"> </div>
+
+		<div class="debateDetail-window-wrapper">
+			<div class="debateDetail-window-title">&nbsp;&nbsp;&nbsp;<i class="fa fa-hand-pointer-o"></i> 찬성/반대 투표</div>
+			<c:if test="${me.OP =='N'}">
+			<div class="agreeVSdisagree">
+				<span class="agNum"> ${map.AGREE}&nbsp; </span>
+				<a href="#" onclick="agree('A');" id="agr"><i class="fa fa-thumbs-o-up"><span> 찬성합니다</span></i></a>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="agree('D');" id="dagr"><i class="fa fa-thumbs-o-down"><span> 반대합니다</span></i></a>
+				<span class="dagNum"> &nbsp;${map.DISAGREE} </span>
+			</div>
+			</c:if>
+			
+			<div class="myOp">
+				<c:if test="${me.OP == 'A'}"> <i class="fa fa-smile-o" id="myOp-a"></i><span class="myOp-span-a"> 이 토론 주제에 찬성합니다! </span></c:if>
+				<c:if test="${me.OP == 'D'}"> <i class="fa fa-frown-o" id="myOp-d"></i><span class="myOp-span-d"> 이 토론 주제에 반대합니다! </span> </c:if>
+				<c:if test="${me.OP == 'N'}"> 투표를 하지 않으셨습니다. 현재 주제에 대한 입장을 투표해 주세요. </c:if>
+			</div>
+			
+			<br/>
+			<div class="debateDetail-openchat"><button onclick="openChat()"> 이 주제의 실시간 채팅방 가기 </button></div>
+			<br/>
+		</div>
+			
+			<div class="width100">
+				<div class="debateDetail-canvas-title">
+					<div class="debateDetail-window-title2">&nbsp;&nbsp;&nbsp;<i class="fa fa-child"></i> 남 vs 여 찬성률 비교 </div>
+					<!-- 남자애니메이션 -->
+					<div class="debateDetail-canvas-man"> <canvas id="guycanvas" width="80" height="200" data-fill="90"></canvas></div>
+					<!-- 여자애니메이션 -->
+					<div class="debateDetail-canvas-woman"> <canvas id="ladycanvas" width="80" height="200" data-fill="90"></canvas></div>
+					<!-- 밑에 남자여자퍼센트 -->
+	 				<div class="debateDetail-canvas-caption">
+		 				<div class="debateDetail-canvas-caption-m"> 남자
+							<div id="counter1" data-fill="${map.MALE}">0%</div>
+						</div>	
+						<div class="debateDetail-canvas-caption-w"> 여자
+							<div id="counter2" data-fill="${map.FEMALE}">0%</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="debateDetail-bar-wrapper">
+					<div class="debateDetail-bar-title">&nbsp;&nbsp;&nbsp;<i class="fa fa-line-chart"></i> 연령별 찬성률 비교 </div>
+
+				<!-- bar 그래프 -->
+					<div class="debateDetail-graphWrap">
+						<div class="barGraph">
+							<ul class="graph">
+								<span class="graph-barBack">
+									<li class="graph-bar" id="li-1" data-value="${map.TWENTY}"><span
+										class="graph-legend">20대</span></li>
+								</span>
+								<span class="graph-barBack">
+									<li class="graph-bar" id="li-2" data-value="${map.THIRTY}"><span
+										class="graph-legend">30대</span></li>
+								</span>
+								<span class="graph-barBack">
+									<li class="graph-bar" id="li-3" data-value="${map.FORTY}"><span
+										class="graph-legend">40대</span></li>
+								</span>
+								<span class="graph-barBack">
+									<li class="graph-bar" id="li-4" data-value="${map.FIFTY}"><span
+										class="graph-legend">50대</span></li>
+								</span>
+								<span class="graph-barBack">
+									<li class="graph-bar" id="li-5" data-value="${map.ETC}"><span
+										class="graph-legend">기타</span></li>
+								</span>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		<div class="debateDetail-reply-wrapper">			
+			<div class="debateDetail-reply-title">&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting-o"></i> 한줄 토론 </div>
+			<div class="debateDetail-reply-divwrap">
+				<form method="post" name="replyForm" id="replyForm" action="<c:url value='/debate/debateReply.do' />">
+					<select name="reply_agree" class="form-control" style="width: 13%; margin-left: 2%; float: left; display: inline-block;"> <option>찬성</option> <option>반대</option> </select>
+					<textarea name="reply_contents" rows="1" class="form-control" style="width: 71%; margin-left: 2%; float: left; resize: none; display: inline-block; overflow:visible;" onkeydown="resize(this)"></textarea>
+         			<button class="btn btn-default" id="debateDetail-reply-btn"><i class="fa fa-pencil-square-o"></i> 댓글쓰기 </button>
+         			<input type="hidden" name="reply_id" value="${sId}">
+         			<input type="hidden" name="idx" value="${map.IDX}">
+         			<input type="hidden" name="title" value="${map.TITLE}">
+				</form>
+			</div>
+		</div>
+		
+		<c:choose>
+			<c:when test="${fn:length(list) > 0}">
+			<div class="debateDetail-replyList-wrapper">
+
+			<div class="debateDetail-replyList-leftWrap">
+			<div class="debateDetail-replyList-left">찬성의견</div>
+				<c:forEach var="row" items="${list}" varStatus="status">
+					<c:if test="${row.REPLY_AGREE == '찬성'}">
+					<div class="d-r-l-1">
+						<div class="d-r-l-1-1">
+							<img src ="<c:url value='/images/members/${row.REPLY_ID}.jpg'/>" width="35px;" height="35px;">
+							<strong>${row.REPLY_ID}</strong>
+						</div>
+						<div class="d-r-r-1">
+							${row.REPLY_CONTENTS}
+							<br/>
+							<div class="reply_choice">
+								<button onclick="O_X('X',${row.IDX})" class="btn btn-default btn-xs">&nbsp;
+									<i class="fa fa-thumbs-down"></i> &nbsp;비공감
+									<input type="text" value="${row.REPLY_X}" class="reply_input" readonly="readonly"></button>
+								<button onclick="O_X('O',${row.IDX})" class="btn btn-default btn-xs">&nbsp;
+									<i class="fa fa-thumbs-up"></i> &nbsp;공감
+									<input type="text" value="${row.REPLY_O}" class="reply_input" readonly="readonly"></button>
+							</div>
+						</div>
+					</div>
+					</c:if>
+				</c:forEach>
+			</div>
+			
+			<div class="debateDetail-replyList-rightWrap">
+			<div class="debateDetail-replyList-right">반대의견</div>
+				<c:forEach var="row" items="${list}" varStatus="status">
+					<c:if test="${row.REPLY_AGREE == '반대'}">
+					<div class="d-r-l-2">
+						<div class="d-r-l-2-2">
+							<img src ="<c:url value='/images/members/${row.REPLY_ID}.jpg'/>" width="35px;" height="35px;">
+							<strong>${row.REPLY_ID}</strong>
+						</div>
+						<div class="d-r-r-2">
+							${row.REPLY_CONTENTS}
+							<br/>
+							<div class="reply_choice">
+								<button onclick="O_X('X',${row.IDX})" class="btn btn-default btn-xs">&nbsp;
+									<i class="fa fa-thumbs-down"></i> &nbsp;비공감
+									 <input type="text" value="${row.REPLY_X}" class="reply_input" readonly="readonly"></button>
+								<button onclick="O_X('O',${row.IDX})" class="btn btn-default btn-xs">&nbsp;
+									<i class="fa fa-thumbs-up"></i> &nbsp;공감
+									<input type="text" value="${row.REPLY_O}" class="reply_input" readonly="readonly"></button>
+							</div>
+						</div>
+					</div>
+					</c:if>
+				</c:forEach>
+			</div>
+			</div>
+			</c:when>
+		</c:choose>
+
+
+	<footer class="container-fluid text-center">
+	  <a href="#myPage" title="To Top">
+	  <span class="toPageTop"> <i class="fa fa-chevron-up"></i> 맨 위로 돌아가기 </span>
+	  </a>
+	</footer>
+</div>
+</div>
+	<script>
+	$(document).ready(function(){
+		
+	  $("footer a[href='#myPage']").on('click', function(event) {
+	    event.preventDefault();
+	    var hash = this.hash;
+	    $('html, body').animate({
+	      scrollTop: $(hash).offset().top
+	    }, 500, function(){
+	      window.location.hash = hash;
+	    });
+	  });
+	  
+	  $(window).scroll(function() {
+	    $(".slideanim").each(function(){
+	      var pos = $(this).offset().top;
+	
+	      var winTop = $(window).scrollTop();
+	        if (pos < winTop + 600) {
+	          $(this).addClass("slide");
+	        }
+	    });
+	  });
+	})
+	
+	// 남자 애니메이션
+	   jQuery(document).ready(function($) {
+        
+        var $canvas = $("#guycanvas");
+        var ctx = $canvas.get(0).getContext("2d");
+        
+        ctx.scale(0.5, 0.5);
+        
+        var color_bg = "#a3b5b5";
+        var color_fill = "#0098aa";
+        var color_stripe = "#0098aa";
+    
+        // CANVAS
+      
+        var draw_figure = function (is_clip) {
+            ctx.beginPath();
+            
+            // head
+            ctx.moveTo(74.2, 56.5);
+            ctx.bezierCurveTo(89.8, 56.5, 102.4, 43.9, 102.4, 28.3);
+            ctx.bezierCurveTo(102.4, 12.7, 89.8, 0.0, 74.2, 0.0);
+            ctx.bezierCurveTo(58.5, 0.0, 45.9, 12.7, 45.9, 28.3);
+            ctx.bezierCurveTo(45.9, 43.9, 58.5, 56.5, 74.2, 56.5);
+            
+            // body
+            ctx.moveTo(148.3, 112.0);
+            ctx.bezierCurveTo(147.9, 90.1, 136.0, 78.7, 113.7, 78.7);
+            ctx.lineTo(34.6, 78.7);
+            ctx.bezierCurveTo(12.3, 78.7, 0.4, 90.1, 0.0, 112.0);
+            ctx.bezierCurveTo(0.0, 112.3, 0.0, 112.7, 0.0, 113.0);
+            ctx.lineTo(0.0, 214.8);
+            ctx.bezierCurveTo(0.0, 221.0, 5.9, 226.1, 12.1, 226.1);
+            ctx.bezierCurveTo(18.3, 226.1, 24.2, 221.0, 24.2, 214.8);
+            ctx.bezierCurveTo(24.2, 214.8, 24.2, 148.3, 24.2, 136.2);
+            ctx.bezierCurveTo(24.2, 124.1, 33.3, 124.1, 33.3, 136.2);
+            ctx.bezierCurveTo(33.3, 145.3, 33.3, 201.5, 33.3, 231.1);
+            ctx.lineTo(33.3, 248.7);
+            ctx.lineTo(33.3, 368.0);
+            ctx.bezierCurveTo(33.3, 377.0, 41.9, 384.4, 50.9, 384.4);
+            ctx.lineTo(52.2, 384.4);
+            ctx.bezierCurveTo(61.2, 384.4, 69.6, 377.0, 69.6, 368.0);
+            ctx.bezierCurveTo(69.6, 368.0, 69.6, 260.3, 69.6, 248.2);
+            ctx.bezierCurveTo(69.6, 236.1, 78.7, 236.1, 78.7, 248.2);
+            ctx.bezierCurveTo(78.7, 260.3, 78.7, 368.0, 78.7, 368.0);
+            ctx.bezierCurveTo(78.7, 377.0, 87.2, 384.4, 96.1, 384.4);
+            ctx.lineTo(97.4, 384.4);
+            ctx.bezierCurveTo(106.4, 384.4, 115.0, 377.0, 115.0, 368.0);
+            ctx.lineTo(115.0, 248.7);
+            ctx.lineTo(115.0, 231.1);
+            ctx.bezierCurveTo(115.0, 201.5, 115.0, 145.3, 115.0, 136.2);
+            ctx.bezierCurveTo(115.0, 124.1, 124.1, 124.1, 124.1, 136.2);
+            ctx.bezierCurveTo(124.1, 148.3, 124.1, 214.8, 124.1, 214.8);
+            ctx.bezierCurveTo(124.1, 221.0, 130.0, 226.1, 136.2, 226.1);
+            ctx.bezierCurveTo(142.4, 226.1, 148.3, 221.0, 148.3, 214.8);
+            ctx.lineTo(148.3, 113.0);
+            ctx.bezierCurveTo(148.3, 112.7, 148.3, 112.3, 148.3, 112.0);
+            
+            if (is_clip)
+                ctx.clip();
+            else
+                ctx.closePath();
+        }
+        
+        var draw_fill = function(fill_percent) {
+            fill_percent = typeof fill_percent !== 'undefined' ? fill_percent : 0;
+            
+            var w = ctx.canvas.width*2;
+            var h = ctx.canvas.height*2;
+            var h_scaled = h / 100;
+            var fill_level = h - h_scaled * fill_percent;
+            
+            ctx.save(); // save current clipping setting as default
+            
+            ctx.beginPath();
+            ctx.rect(0,fill_level,w,h);
+            //ctx.rect(0,0,w,fill_level);
+            ctx.clip();
+            
+            // Fill
+            ctx.fillStyle = color_fill;
+            ctx.fillRect(0, 0, w, h);
+            
+            // Draw stripe
+            ctx.lineWidth = 100;
+            ctx.beginPath();
+            ctx.strokeStyle = color_stripe;
+            ctx.moveTo(-50, h);
+            ctx.lineTo(w*2, 0);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        var draw = function (is_initial, fill_percent) {
+            fill_percent = typeof fill_percent !== 'undefined' ? fill_percent : 0;
+            
+            if (is_initial) {
+                // Draw background figure
+                draw_figure(false);
+                ctx.fillStyle = color_bg; // light blue
+                ctx.fill();
+                
+                draw_figure(true); // main clipping mask - figure
+            }
+            else {
+                draw_fill(fill_percent); // progress clipping mask - rectangle
+            }
+        }
+        
+        // ANIMATION
+        
+        var animate_progress = function(upto, duration_ms) {
+            duration_ms = typeof duration_ms !== 'undefined' ? duration_ms : 2000;
+        
+            var this_counter = 0;
+            
+            draw(true);
+            
+            jQuery({ Counter: this_counter }).animate({ Counter: upto }, {
+                duration: duration_ms,
+                easing: 'swing',
+                step: function () {
+                    this_counter = Math.ceil(this.Counter);
+                    
+                    // Percent display
+                    $("#counter1").text(this_counter + "%");
+                    
+                    // Progress image
+                    draw(false, this_counter);
+                }
+            });
+        }
+        
+        animate_progress($("#counter1").data("fill"));
+        
+    });
+	
+	// 여자 애니메이션
+	   jQuery(document).ready(function($) {
+     
+     var $canvas = $("#ladycanvas");
+     var ctx = $canvas.get(0).getContext("2d");
+     
+     ctx.scale(0.5, 0.5);
+     
+     var color_bg = "#a3b5b5";
+     var color_fill = "#ff415c";
+     var color_stripe = "#ff415c";
+ 
+     // CANVAS
+   
+     var draw_figure = function (is_clip) {
+         ctx.beginPath();
+         
+         // head
+         ctx.moveTo(74.2, 56.5);
+         ctx.bezierCurveTo(89.8, 56.5, 102.4, 43.9, 102.4, 28.3);
+         ctx.bezierCurveTo(102.4, 12.7, 89.8, 0.0, 74.2, 0.0);
+         ctx.bezierCurveTo(58.5, 0.0, 45.9, 12.7, 45.9, 28.3);
+         ctx.bezierCurveTo(45.9, 43.9, 58.5, 56.5, 74.2, 56.5);
+         
+         // body
+         ctx.moveTo(148.3, 112.0);
+         ctx.bezierCurveTo(147.9, 90.1, 136.0, 78.7, 113.7, 78.7);
+         ctx.lineTo(34.6, 78.7);
+         ctx.bezierCurveTo(12.3, 78.7, 0.4, 90.1, 0.0, 112.0);
+         ctx.bezierCurveTo(0.0, 112.3, 0.0, 112.7, 0.0, 113.0);
+         ctx.lineTo(0.0, 214.8);
+         ctx.bezierCurveTo(0.0, 221.0, 5.9, 226.1, 12.1, 226.1);
+         ctx.bezierCurveTo(18.3, 226.1, 24.2, 221.0, 24.2, 214.8);
+         ctx.bezierCurveTo(24.2, 214.8, 24.2, 148.3, 24.2, 136.2);
+         ctx.bezierCurveTo(24.2, 124.1, 33.3, 124.1, 33.3, 136.2);
+         ctx.bezierCurveTo(33.3, 145.3, 33.3, 201.5, 33.3, 231.1);
+         ctx.lineTo(33.3, 248.7);
+         ctx.lineTo(33.3, 368.0);
+         ctx.bezierCurveTo(33.3, 377.0, 41.9, 384.4, 50.9, 384.4);
+         ctx.lineTo(52.2, 384.4);
+         ctx.bezierCurveTo(61.2, 384.4, 69.6, 377.0, 69.6, 368.0);
+         ctx.bezierCurveTo(69.6, 368.0, 69.6, 260.3, 69.6, 248.2);
+         ctx.bezierCurveTo(69.6, 236.1, 78.7, 236.1, 78.7, 248.2);
+         ctx.bezierCurveTo(78.7, 260.3, 78.7, 368.0, 78.7, 368.0);
+         ctx.bezierCurveTo(78.7, 377.0, 87.2, 384.4, 96.1, 384.4);
+         ctx.lineTo(97.4, 384.4);
+         ctx.bezierCurveTo(106.4, 384.4, 115.0, 377.0, 115.0, 368.0);
+         ctx.lineTo(115.0, 248.7);
+         ctx.lineTo(115.0, 231.1);
+         ctx.bezierCurveTo(115.0, 201.5, 115.0, 145.3, 115.0, 136.2);
+         ctx.bezierCurveTo(115.0, 124.1, 124.1, 124.1, 124.1, 136.2);
+         ctx.bezierCurveTo(124.1, 148.3, 124.1, 214.8, 124.1, 214.8);
+         ctx.bezierCurveTo(124.1, 221.0, 130.0, 226.1, 136.2, 226.1);
+         ctx.bezierCurveTo(142.4, 226.1, 148.3, 221.0, 148.3, 214.8);
+         ctx.lineTo(148.3, 113.0);
+         ctx.bezierCurveTo(148.3, 112.7, 148.3, 112.3, 148.3, 112.0);
+         
+         if (is_clip)
+             ctx.clip();
+         else
+             ctx.closePath();
+     }
+     
+     var draw_fill = function(fill_percent) {
+         fill_percent = typeof fill_percent !== 'undefined' ? fill_percent : 0;
+         
+         var w = ctx.canvas.width *2;
+         var h = ctx.canvas.height *2;
+         var h_scaled = h / 100;
+         var fill_level = h - h_scaled * fill_percent;
+         
+         ctx.save(); // save current clipping setting as default
+         
+         ctx.beginPath();
+         ctx.rect(0,fill_level,w,h);
+         //ctx.rect(0,0,w,fill_level);
+         ctx.clip();
+         
+         // Fill
+         ctx.fillStyle = color_fill;
+         ctx.fillRect(0, 0, w, h);
+         
+         // Draw stripe
+         ctx.lineWidth = 100;
+         ctx.beginPath();
+         ctx.strokeStyle = color_stripe;
+         ctx.moveTo(-50, h);
+         ctx.lineTo(w*2, 0);
+         ctx.stroke();
+         
+         ctx.restore();
+     }
+     
+     var draw = function (is_initial, fill_percent) {
+         fill_percent = typeof fill_percent !== 'undefined' ? fill_percent : 0;
+         
+         if (is_initial) {
+             // Draw background figure
+             draw_figure(false);
+             ctx.fillStyle = color_bg; // light blue
+             ctx.fill();
+             
+             draw_figure(true); // main clipping mask - figure
+         }
+         else {
+             draw_fill(fill_percent); // progress clipping mask - rectangle
+         }
+     }
+     
+     // ANIMATION
+     
+     var animate_progress = function(upto, duration_ms) {
+         duration_ms = typeof duration_ms !== 'undefined' ? duration_ms : 2000;
+     
+         var this_counter = 0;
+         
+         draw(true);
+         
+         jQuery({ Counter: this_counter }).animate({ Counter: upto }, {
+             duration: duration_ms,
+             easing: 'swing',
+             step: function () {
+                 this_counter = Math.ceil(this.Counter);
+                 
+                 // Percent display
+                 $("#counter2").text(this_counter + "%");
+                 
+                 // Progress image
+                 draw(false, this_counter);
+             }
+         });
+     }
+     
+     animate_progress($("#counter2").data("fill"));
+ });
+
+	</script>
+
+<input id="hiddenOp" type="hidden" value="${me.OP}">
+</body>
+</html>

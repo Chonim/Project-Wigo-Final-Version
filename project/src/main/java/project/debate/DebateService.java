@@ -1,0 +1,39 @@
+package project.debate;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+public interface DebateService {
+	Map<String, Object> selectDebateList(Map<String, Object> map) throws Exception;
+
+	Map<String, Object> selectDebateDetail(Map<String, Object> map) throws Exception;
+	
+	void insertDebate(Map<String, Object> map, HttpServletRequest request) throws Exception;
+	
+	void updateDebate(Map<String, Object> map, HttpServletRequest request) throws Exception;
+	   
+	void deleteDebate(Map<String, Object> map) throws Exception;
+
+	void myOpinion(Map<String, Object> map) throws Exception;
+
+	Map<String, Object> selectMyDebate(Map<String, Object> map) throws Exception;
+
+	Map<String, Object> openMyDebate(Map<String, Object> map) throws Exception;
+
+	void insertDebateColumn(Map<String, Object> map) throws Exception;
+
+	void insertDebateTopic(Map<String, Object> map) throws Exception;
+
+	Map<String, Object> debateReply(Map<String, Object> map) throws Exception;
+
+	void insertDebateReply(Map<String, Object> map) throws Exception;
+
+	Map<String, Object> selectFavoriteList(Map<String, Object> map) throws Exception;
+
+	void insertFavorite(Map<String, Object> map) throws Exception;
+
+	void ox(Map<String, Object> map) throws Exception;
+	
+	void updateDebateCount(Map<String, Object> map) throws Exception;
+}

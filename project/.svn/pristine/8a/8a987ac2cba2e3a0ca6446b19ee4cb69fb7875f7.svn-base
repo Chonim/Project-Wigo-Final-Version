@@ -1,0 +1,149 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$('.position-button--yes').click(function() {
+		$('circle').attr('fill','#39a96f');
+	});
+	
+	$('.position-button--abstain').click(function() {
+		$('circle').attr('fill','#e18e09');
+	});
+	
+	$('.position-button--no').click(function() {
+		$('circle').attr('fill','#e7324a');
+	});
+	
+	$('.position-button--block').click(function() {
+		$('circle').attr('fill','#922a1c');
+	});
+	
+})
+</script>
+</head>
+<body>
+	<div class="clearfix"></div>
+	<div ng-show:="" 'proposal'="" id="proposal-zvAEV7kB"
+		class="proposal-expanded" proposal="proposal">
+		<!-- ngIf: showActionsDropdown() -->
+			<!-- ngIf: translation --></a>
+		<div class="proposal-expanded__started-by">
+			<span translate="proposal_expanded.started_by"
+				translate-values="{name: proposal.authorName()}">Started by <strong>Chiho
+					Yoon</strong></span> <span aria-hidden="true">·</span>  <abbr
+				class="closing-in timeago timeago--inline" proposal="proposal">
+					<!-- ngIf: proposal.isActive() -->
+					<span ng-if="proposal.isActive()" translate="common.closing_in"
+					translate-value-time="in 7 years"
+					ng-attr-title="{{proposal.closingAt | exactDateWithTime}}"
+					title="Saturday December 31st at 11:00 am">in 7 years 진행중</span>
+				<!-- end ngIf: proposal.isActive() -->
+					<!-- ngIf: !proposal.isActive() -->
+			</abbr>
+			<div class="lmo-link-color translate-button" model="proposal"
+				showdot="true">
+				<!-- ngIf: showdot && (canTranslate() || translateExecuting || translated) -->
+				<!-- ngIf: canTranslate() -->
+				<div class="translate-button__loading page-loading ng-hide"
+					ng-show="translateExecuting">
+					<i class="fa fa-lg fa-spin fa-circle-o-notch" aria-hidden="true"></i>
+				</div>
+				<!-- ngIf: translated -->
+			</div>
+		</div>
+		<!-- ngIf: translation && proposal.description -->
+		<!-- ngIf: showOutcomePanel() -->
+		<!-- ngIf: translation && proposal.outcome -->
+		<div class="blank" proposal="proposal">
+			<!-- ngIf: showPositionButtons() -->
+			<div ng-if="showPositionButtons()" class="position-buttons-panel">
+				<h4 translate="position_buttons_panel.heading"
+					class="lmo-card-subheading">한말씀</h4>
+				<div class="position_buttons_panel__buttons">
+					<button ng-click="select(&quot;yes&quot;)"
+						class="position-button position-button--yes">
+						<div translate="vote_form.i_agree" class="sr-only">동의</div>
+					</button>
+					<button ng-click="select(&quot;abstain&quot;)"
+						class="position-button position-button--abstain">
+						<div translate="vote_form.i_abstain" class="sr-only">기권</div>
+					</button>
+					<button ng-click="select(&quot;no&quot;)"
+						class="position-button position-button--no">
+						<div translate="vote_form.i_disagree" class="sr-only">동의하지
+							않음</div>
+					</button>
+					<button ng-click="select(&quot;block&quot;)"
+						class="position-button position-button--block">
+						<div translate="vote_form.i_block" class="sr-only">차단</div>
+					</button>
+				</div>
+			</div>
+			<!-- end ngIf: showPositionButtons() -->
+		</div>
+		<div class="proposal-positions-panel" proposal="proposal">
+			<h4 translate="proposal_positions_panel.heading"
+				class="lmo-card-subheading">선택</h4>
+			<div class="proposal-pie-chart media">
+				<div class="proposal-pie-chart__pie media-left">
+					<div class="proposal-positions-panel__pie-chart pie-chart"
+						votes="proposal.voteCounts">
+						<svg id="SvgjsSvg1012" xmlns="http://www.w3.org/2000/svg"
+							version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
+							xmlns:svgjs="http://svgjs.com/svgjs" width="70%" height="70%">
+						<defs id="SvgjsDefs1013"></defs>
+						<circle id="SvgjsCircle1017" r="70" cx="70" cy="70"
+							stroke-width="0" fill="#aaaaaa"></circle></svg>
+					</div>
+				</div>
+				<div class="proposal-pie-chart__legend media-body">
+					<table role="presentation" id="proposal-current-positions">
+						<caption translate="proposal_expanded.current_votes"
+							class="sr-only">Current votes</caption>
+						<tbody>
+							<!-- ngRepeat: position in proposal.positions -->
+							<tr ng-repeat="position in proposal.positions">
+								<td><div
+										class="proposal-pie-chart__label proposal-pie-chart__label--yes">0
+										찬성</div></td>
+							</tr>
+							<!-- end ngRepeat: position in proposal.positions -->
+							<tr ng-repeat="position in proposal.positions">
+								<td><div
+										class="proposal-pie-chart__label proposal-pie-chart__label--abstain">0
+										기권</div></td>
+							</tr>
+							<!-- end ngRepeat: position in proposal.positions -->
+							<tr ng-repeat="position in proposal.positions">
+								<td><div
+										class="proposal-pie-chart__label proposal-pie-chart__label--no">0
+										반대</div></td>
+							</tr>
+							<!-- end ngRepeat: position in proposal.positions -->
+							<tr ng-repeat="position in proposal.positions">
+								<td><div
+										class="proposal-pie-chart__label proposal-pie-chart__label--block">0
+										Block</div></td>
+							</tr>
+							<!-- end ngRepeat: position in proposal.positions -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div translate="proposal_pie_chart.participation_statement"
+				translate-value-percentage="0" translate-value-number="0"
+				translate-value-total="1"
+				class="proposal-pie-chart__participation-statement">0%의 멤버가 의견을 표시하였습니다. (0/1)</div>
+			<ul class="proposal-positions-panel__list">
+				<!-- ngRepeat: vote in curatedVotes() track by vote.id -->
+			</ul>
+			<!-- ngIf: proposal.hasUndecidedMembers() -->
+		</div>
+		
+	</div>
+
+</body>
+</html>

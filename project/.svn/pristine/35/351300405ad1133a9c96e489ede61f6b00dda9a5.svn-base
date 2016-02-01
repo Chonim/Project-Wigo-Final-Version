@@ -1,0 +1,143 @@
+\<%@ include file="/WEB-INF/include/include-top.jsp"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+<title>member Profile Update</title>
+</head>
+<body>
+	<div class="memberWrapper">
+			<h3>회원 상세정보</h3>
+		    <form id="memberProfilfrm" enctype="multipart/form-data">			
+		<table class="memberTable">
+
+			<tbody>
+							<tr>
+								<td rowspan="6" width="115px;">
+								<img src="<c:url value='/images/members/${sId}.jpg'/>" height="150px;">
+								<input class="form-control" type="file" name="photo">
+								</td>
+								<td class="member-head">ID</td>
+								<td>${map.ID }<input type="hidden" id="id" name="id" value="${map.ID }"></td>
+								
+								
+							</tr>
+							<tr>
+								<td class="member-head">비밀번호</td>
+								<td><input type="password"
+									name="password1" id="password1" value="${map.PASSWORD }"></td>
+							</tr>
+							<tr>
+								<td class="member-head">재확인</td>
+								<td><input type="password"
+									name="password2" id="password2" value="${map.PASSWORD }"></td>
+							</tr>
+							<tr>
+								<td class="member-head">이름</td>
+								<td><input type="text" class="form-control" name="name" value="${map.NAME }"></td>
+							</tr>
+							<tr>
+								<td class="member-head">나이</td>
+								<td>
+								<c:if test="${map.AGE == 20}">
+								<select class="form-control" name="ageSelect">
+									<option selected>20</option>
+									<option>30</option>
+									<option>40</option>
+									<option>50</option>
+									<option>60</option>
+								</select>
+								</c:if>
+								<c:if test="${map.AGE == 30}">
+								<select class="form-control" name="ageSelect">
+									<option>20</option>
+									<option selected>30</option>
+									<option>40</option>
+									<option>50</option>
+									<option>60</option>
+								</select>
+								</c:if>
+								<c:if test="${map.AGE == 40}">
+								<select class="form-control" name="ageSelect">
+									<option>20</option>
+									<option>30</option>
+									<option selected>40</option>
+									<option>50</option>
+									<option>60</option>
+								</select>
+								</c:if>
+								<c:if test="${map.AGE == 50}">
+								<select class="form-control" name="ageSelect">
+									<option>20</option>
+									<option>30</option>
+									<option>40</option>
+									<option  selected>50</option>
+									<option>60</option>
+								</select>
+								</c:if>
+								<c:if test="${map.AGE == 60}">
+								<select class="form-control" name="ageSelect">
+									<option>20</option>
+									<option>30</option>
+									<option>40</option>
+									<option>50</option>
+									<option  selected>60</option>
+								</select>
+								</c:if>
+								</td>	
+							</tr>
+							<tr>
+								<td class="member-head">성별</td>
+								<td>
+								<c:if test="${map.SEX == '남'}">								
+								<input type="radio" name="sexRadios" id="optionsRadios1" value="남" checked>	남
+								<input type="radio" name="sexRadios" id="optionsRadios2" value="여"> 여
+								</c:if>	
+								<c:if test="${map.SEX == '여'}">								
+								<input type="radio" name="sexRadios" id="optionsRadios1" value="남">	남
+								<input type="radio" name="sexRadios" id="optionsRadios2" value="여" checked> 여
+								</c:if>								
+								</td>
+							</tr>
+
+				</tbody>
+		</table>
+		</form>	
+		<a href="#this" class="btn" id="memberProfileUpdate">저장하기</a>
+		<a href="#this" class="btn" id="memberProfileUpdateClose">취소하기</a>
+	</div>
+	
+	
+	<%@ include file="/WEB-INF/include/include-body.jsp"%>
+    <script type="text/javascript">
+        $(document).ready(function(){
+             
+            $("#memberProfileUpdate").on("click", function(e){ //저장하기 버튼
+                e.preventDefault();
+                fn_updateMemberProfile();
+            });  
+            
+            $("#memberProfileUpdateClose").on("click", function(e){ //취소하기 버튼
+                e.preventDefault();
+                fn_updateCloseMemberProfile();
+            });  
+
+        });
+         
+        function fn_updateMemberProfile(){
+            var comSubmit = new ComSubmit("memberProfilfrm");
+            comSubmit.setUrl("<c:url value='/members/updateMemberProfile.do' />");
+            comSubmit.submit();
+        }
+        
+        function fn_updateCloseMemberProfile(){
+            var comSubmit = new ComSubmit();
+            comSubmit.setUrl("<c:url value='/members/memberProfile.do' />");
+            comSubmit.submit();
+        }
+         
+    </script>
+	
+</body>
+</html>

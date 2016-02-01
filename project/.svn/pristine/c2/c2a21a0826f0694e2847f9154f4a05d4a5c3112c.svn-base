@@ -1,0 +1,225 @@
+package project.common.controller;
+
+import java.io.File;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import project.common.common.CommandMap;
+import project.common.common.RelativeKeyword;
+import project.common.service.CommonService;
+import project.common.twitter.Tweets;
+ 
+@Controller
+public class CommonController {
+    Logger log = Logger.getLogger(this.getClass());
+     
+    @Resource(name="commonService")
+    private CommonService commonService;
+
+    @RequestMapping(value="/common/downloadFile.do")
+    public void downloadFile(CommandMap commandMap, HttpServletResponse response) throws Exception{
+        Map<String,Object> map = commonService.selectFileInfo(commandMap.getMap());
+        String storedFileName = (String)map.get("STORED_FILE_NAME");
+        String originalFileName = (String)map.get("ORIGINAL_FILE_NAME");
+         
+        byte fileByte[] = FileUtils.readFileToByteArray(new File("C:\\dev\\file\\"+storedFileName));
+         
+        response.setContentType("application/octet-stream");
+        response.setContentLength(fileByte.length);
+        response.setHeader("Content-Disposition", "attachment; fileName=\"" + URLEncoder.encode(originalFileName,"UTF-8")+"\";");
+        response.setHeader("Content-Transfer-Encoding", "binary");
+        response.getOutputStream().write(fileByte);
+         
+        response.getOutputStream().flush();
+        response.getOutputStream().close();
+    }
+    
+	// login
+	@RequestMapping(value="/common/login.do")
+	public ModelAndView login(CommandMap commandMap, HttpSession session, HttpServletRequest request) throws Exception {
+		ModelAndView mv = new ModelAndView("redirect:..");
+		
+		// input text save
+		String inputId = (String) commandMap.get("id");
+		String inputPw = (String) commandMap.get("password");
+		
+		// db search result save
+		Map<String, Object> map = commonService.login(commandMap.getMap());
+		
+		// 사진이 저장되있는지 없는지 판단
+		String path = request.getSession().getServletContext().getRealPath("/images/members");
+		File memberPhotos = new File(path);
+		String [] arrayPhotos = memberPhotos.list();
+		
+		// compare (input, result)
+		if (map != null && !map.isEmpty()){
+			if (inputId.equals(map.get("ID")) && (inputPw.equals(map.get("PASSWORD")))) {
+				session.setAttribute("sName", map.get("NAME"));
+				session.setAttribute("sId", map.get("ID"));	
+				session.setAttribute("sSex", map.get("SEX"));
+				session.setAttribute("photoExist", "N");
+					for(int i=0; i<arrayPhotos.length; i++) {
+						if (arrayPhotos[i].substring(0, arrayPhotos[i].length()-4).equals(inputId)) {
+							session.setAttribute("photoExist", "Y");
+						}
+				}
+			} else {
+				// ID isn't null in DB, but one of (ID, PASS) is incorrect.
+			}
+		} else {
+			// ID is null in DB
+		}
+		return mv;		
+	}
+		
+	// logout
+	@RequestMapping(value="/common/logout.do")
+	public ModelAndView login(HttpSession session) throws Exception {
+		ModelAndView mv = new ModelAndView("redirect:..");
+		session.invalidate();
+		return mv;
+	}
+	
+	// join
+	@RequestMapping(value="/common/join.do")
+	public ModelAndView join(CommandMap commandMap, HttpSession session, @RequestParam("photo") MultipartFile photo) throws Exception {
+		ModelAndView mv = new ModelAndView("redirect:..");
+		
+			String id = (String) commandMap.get("id");
+			String name = (String) commandMap.get("name");
+			String age = (String) commandMap.get("age");
+			String sex = (String) commandMap.get("sex");
+		
+		if (photo.isEmpty()) {
+				File source = new File("C://dev/workspace/project/src/main/webapp/images/members/default.png");
+				File dest = new File("C://dev/workspace/project/src/main/webapp/images/members/" + id + ".jpg");
+				FileUtils.copyFile(source, dest);		
+
+		} else {
+			String path = "C://dev/workspace/project/src/main/webapp/images/members/";
+			String filename = id +".jpg";
+			File f = new File(path + filename);
+			try {
+				photo.transferTo(f);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+		}
+
+		try { // db insert
+			commonService.join(commandMap.getMap());
+			// create session
+			session.setAttribute("sName", name);
+			session.setAttribute("sId", id);
+			session.setAttribute("sAge", age);
+			session.setAttribute("sSex", sex);	
+		} catch (Exception e) {}
+		return mv;
+	}
+	
+	// 검색 !
+	@RequestMapping(value="/common/search.do")
+	public void search(HttpServletResponse response, HttpServletRequest request) throws Exception {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
+		// 검색어 키워드
+		String keyword = request.getParameter("keyword");
+		try {
+			Map<String, Object> map = commonService.search(keyword);
+		
+		@SuppressWarnings("unchecked")
+		List<Map<String,Object>> list = (List<Map<String, Object>>) map.get("result");
+
+		String searchrs = null;
+		
+		for (int i=0; i<list.size(); i++) {
+			searchrs = searchrs + "/" + list.get(i).get("KEYWORD");
+		}
+		
+		searchrs = searchrs.substring(5);
+		
+		response.getWriter().write(searchrs);
+		} catch (Exception e) {}
+	}	
+
+	// 	태그 추가 !
+	@RequestMapping(value="/common/addTag.do")
+	public void addTag(HttpServletResponse response, HttpServletRequest request) throws Exception {
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
+	// 	검색어 키워드
+		String tag = request.getParameter("addTag");
+		CommandMap commandMap = new CommandMap();
+		
+		// 기존 tag들을 가져와서 뒤에 /addtag를 붙임
+		String keyword = request.getParameter("keyword");
+		Map<String, Object> map = commonService.searchForAddTag(keyword);
+		tag = tag + "/" + map.get("TAGS");
+		
+		commandMap.put("tag", tag);
+		commandMap.put("keyword", keyword);
+
+		try { // db insert
+			commonService.addTag(commandMap.getMap());
+		} catch (Exception e) {} 	
+		
+		search(response, request);
+	}
+	
+	// 	마인드맵 ajax 
+	@RequestMapping(value="/common/mindMap.do")
+	public void test(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String key = request.getParameter("keyword");
+		RelativeKeyword relativeKeyword = new RelativeKeyword();
+		String keyResult = relativeKeyword.relativeSearch(key);
+		
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
+		response.getWriter().println(keyResult);
+	}
+	
+	// 	트위터 ajax 
+	@RequestMapping(value="/common/showTweets.do")
+	public void showTweets(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String key = request.getParameter("keyword");
+		Tweets tweets = new Tweets();
+		String keyResult = tweets.tweets(key);
+		
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html; charset=UTF-8");
+		response.getWriter().println(keyResult);
+	}
+	
+	// 	프로젝트 소개 
+	@RequestMapping(value="/intro/introduce.do")
+	public ModelAndView introduce() throws Exception {
+		ModelAndView mv = new ModelAndView("introduce");
+		return mv;
+	}
+	
+	@RequestMapping(value="/common/openPopularInstagram.do")
+	public ModelAndView popularInstagram() throws Exception {
+		ModelAndView mv = new ModelAndView("angularInstagram");
+		return mv;
+	}
+	
+	@RequestMapping(value="/common/weather.do")
+	public ModelAndView weather() throws Exception {
+		ModelAndView mv = new ModelAndView("GeoLocationWheather");
+		return mv;
+	}
+}

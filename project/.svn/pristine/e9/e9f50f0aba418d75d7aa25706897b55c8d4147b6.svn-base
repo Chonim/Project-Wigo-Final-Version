@@ -1,0 +1,832 @@
+// Null check
+function gfn_isNull(str) {
+    if (str == null) return true;
+    if (str == "NaN") return true;
+    if (new String(str).valueOf() == "undefined") return true;  
+    var chkStr = new String(str);
+    if (chkStr.valueOf() == "undefined" ) return true;
+    if (chkStr == null) return true;    
+    if (chkStr.toString().length == 0 ) return true;   
+    return false; 
+}
+ 
+function ComSubmit(opt_formId) {
+    this.formId = gfn_isNull(opt_formId) == true ? "commonForm" : opt_formId;
+    this.url = "";
+     
+    if(this.formId == "commonForm"){
+        $("#commonForm")[0].reset();
+    }
+     
+    this.setUrl = function setUrl(url){
+        this.url = url;
+    };
+     
+    this.addParam = function addParam(key, value){
+        $("#"+this.formId).append($("<input type='hidden' name='"+key+"' id='"+key+"' value='"+value+"' >"));
+    };
+     
+    this.submit = function submit(){
+    	var frm = $("#"+this.formId)[0];
+    	frm.action = this.url;
+        frm.method = "post";
+        frm.submit();
+    };
+    
+}
+
+// join id check
+function joinIdCheck(input) {
+	var message = '';
+	var length = input.length;
+		if (input === '') {
+			message = '<span style="color:red"> 아이디를 입력해주세요  <span class="glyphicon glyphicon-remove"> </span>';
+		} else if (length < 6 || length > 12) {
+			message = '<span style="color:red"> 6~12자 사이로 입력해주세요  <span class="glyphicon glyphicon-remove"> </span>';
+		} else {
+			message = '<span style="color:green"> 사용 가능한 아이디입니다  <span class="glyphicon glyphicon-ok"> </span>';
+		} document.getElementById("joinIdCheck").innerHTML = message;
+}
+
+// join password check
+function joinPasswordCheck(password2) {
+	var message = '';
+	var password1 = document.getElementById("password1").value;
+		if (password2 != password1) {
+			message = '<span style="color:red"> 비밀번호가 다릅니다 <span class="glyphicon glyphicon-remove"> </span>';
+		} else {
+			message = '<span style="color:green"> 비밀번호가 일치합니다 <span class="glyphicon glyphicon-ok"> </span>';
+		} document.getElementById("passwordCheck").innerHTML = message;
+}
+
+
+$(function() {
+	  $('progress').each(function() {
+	    var max = $(this).val();
+	    	$(this).val(0).animate({ value: max }, { duration: 1000, easing: 'easeOutCirc' });
+		});
+	});
+	
+
+// 디테일 토론 뷰
+function detailView(IDX){
+	document.getElementById('idx').value = IDX;
+   	detailForm.submit();
+	}
+
+function randomView() {
+	var titles = document.getElementsByName("titles");
+	var IDX = Math.random(titles.length);
+	document.getElementById('idx').value = IDX; 
+	detailForm.submit();
+}
+
+// 디테일 토론에 찬성반대
+function agree(option) {
+	if (document.getElementById('hiddenOp').value == 'N'){
+		document.getElementById('option').value = option;
+		oForm.submit();
+	} else {
+		alert('이미 투표하셨습니다!');
+	}
+}
+
+// 디테일 토론 댓글
+function reply() {
+	replyForm.submit();
+}
+// 대화방으로 이동
+function openChat() {
+var title = "${map.TITLE}";
+	document.getElementById('keyword').value = title;
+	keywordForm.submit();
+}
+$(document).ready(function() {
+	  $('.graph-bar').each(function() {
+	    var dataWidth = $(this).data('value');
+	    $(this).css("width", dataWidth + "%");
+	  });
+	});
+
+
+// 연관검색.. 태그검색.. 이미지 썸네일..
+function search_query2(t) {
+	var url = "http://apis.daum.net/search/image";
+	url += "?output=json";
+	url += "&apikey=b62b20a07b737c1cca5b88737980adb11809762a"
+	url += "&q=" + t;
+	url += "&callback=?";
+	
+	$.getJSON(url,function(data) {
+		result = "<table style='border:1px solid black;'>";
+		for (var i=0; i<8; i++)
+		{
+			result += "<div class=\"detail-thumb-div\" onclick=\"newWindowOpen('"+data.channel.item[i].link+"');\"<td><img src=\""+data.channel.item[i].thumbnail	+"\"></td></div>";
+		} 
+		result += "</table>";
+	}).error(function(XMLHttpRequest, textStatus, errorThrown)
+	{          
+		result = textStatus;
+	}).complete(function(){
+		$("#results").html(result);                                    
+	});
+}
+
+// 토론 디테일 뷰에서 태그검색하면 이미지 썸네일 띄우는 거
+function search_query() {      
+	var query = document.getElementById('keyword').value.substr(0,9);
+	var url = "http://apis.daum.net/search/image";
+	url += "?output=json";
+	url += "&apikey=b62b20a07b737c1cca5b88737980adb11809762a"
+	url += "&q=" + query;
+	url += "&callback=?";
+	
+	$.getJSON(url,function(data) {
+		result = "";
+		for (var i=0; i<8; i++)
+		{
+			result +=
+				"<div class=\"detail-thumb-div\" onclick=\"newWindowOpen('"+data.channel.item[i].link+"');\"<td><img src=\""+data.channel.item[i].thumbnail	+"\"></td></div>";
+		} 
+		result += "";
+	}).error(function(XMLHttpRequest, textStatus, errorThrown)
+	{          
+		result = textStatus;
+	}).complete(function(){
+		$("#results").html(result);                                    
+	});
+}
+
+// 메인 화면 daum image검색
+function search_query_show(t) {
+	var url = "http://apis.daum.net/search/image";
+	url += "?output=json";
+	url += "&apikey=b62b20a07b737c1cca5b88737980adb11809762a"
+	url += "&q=" + t;
+	url += "&callback=?";
+	
+	$.getJSON(url,function(data) {
+		
+		result = "<div>";
+		for (var i=0; i<8; i++)
+		{
+			result += "<div class=\"index-thumb-div\" onclick=\"newWindowOpen('"+data.channel.item[i].link+"');\"<td><img src=\""+data.channel.item[i].thumbnail+"\"style='padding-top: 5px;'></td></div>";
+		} 
+		result += "</div>";
+		
+	}).error(function(XMLHttpRequest, textStatus, errorThrown)
+	{          
+		result = textStatus;
+	}).complete(function(){
+		$("#results").html(result).slideDown("normal").fadeIn("normal");                                    
+	});
+}
+
+function newWindowOpen(url) {
+	W = 1000;
+	H = 800;
+	Win = window.open(url,"","width="+W+", height="+H);
+}
+
+function mainOnEvent(key) {
+	search_query_show(key);
+	mindMap_query_show(key);
+	showTweets(key);
+	showInstagram(key);
+	searchYoutube(key);
+}
+
+
+//직접 검색 !
+function direct_search() {
+	var key = document.getElementById('direct_search_keyword').value;
+	document.getElementById('direct_search_keyword').value = "";
+	mainOnEvent(key)
+	$('.keyword').html("'"+key+"'"+'에 대한 검색결과', function() {
+		$('.keyword').fadeIn('slow');
+	});
+}
+
+//직접 마인드맵 클릭 검색 !
+function direct_click_search(key) {
+	document.getElementById('direct_search_keyword').value = "";
+	mainOnEvent(key)
+	$('.keyword').html("'"+key+"'"+'에 대한 검색결과', function() {
+		$('.keyword').fadeIn('slow');
+	});
+}
+
+function mindMap_query_show(t) {
+	$.ajax ({
+		type: "POST",
+		url: "common/mindMap.do", // 데이터를 받을 페이지
+		data: "keyword="+t,
+		cache: false,
+		success: function(data) {
+			
+   	 $("#mindMap").html("");
+        var swatches = function(el) {
+           var w = $(Window).width()*0.3;
+           var h = 280;
+           
+           // 화면에 출력되는 마인드맵 배열
+		           var nodes = [{ name : t }];
+		           var searchrsSplit = data.split(",");
+		               for(var i=0; i<10; i++) {
+		               nodes.push( {name : searchrsSplit[i] , target : [0] } );
+		           }
+		           
+		           var circleWidth = 50;
+		           var palette = {
+		        	  "lightgray" : "#819090",
+		              "gray" : "#708284",
+		              "mediumgray" : "#536870",
+		              "darkgray" : "#475B62",
+		              "darkblue" : "#0A2933",
+		              "darkerblue" : "#042029",
+		              "paleryellow" : "#FCF4DC",
+		              "paleyellow" : "#EAE3CB",
+		              "yellow" : "#A57706",
+		              "orange" : "#BD3613",
+		              "red" : "#D11C24",
+		              "pink" : "#C61C6F",
+		              "purple" : "#595AB7",
+		              "blue" : "#2176C7",
+		              "green" : "#259286",
+		              "white" : "#fefefe",
+		              "yellowgreen" : "#738A05"
+		           }
+		           
+		           // 사용자정의 색상 
+		           var palette2 = [
+		                      "#FFFD6D",
+				        	  "#66E885",
+				              "#7BD6FF",
+				              "#A482E8",
+				              "#FF79A0",
+				              "#6AE3FF",
+				              "#61E87C",
+				              "#FFFF77",
+				              "#E8A01E",
+				              "#FF4D2E",
+				              "#865FD9"
+				              ]
+
+		           var links = [];
+
+		           for (var i = 0; i < nodes.length; i++) {
+		              if (nodes[i].target !== undefined) {
+		                 for (var x = 0; x < nodes[i].target.length; x++) {
+		                    links.push({
+		                       source : nodes[i],
+		                       target : nodes[nodes[i].target[x]]
+		                    })
+		                 }
+		              }
+		           }
+
+		           var myChart = d3.select(el).append('svg').attr('width', w)
+		                 .attr('height', h)
+
+		           var force = d3.layout.force().nodes(nodes).links([]).gravity(
+		                 0.15).charge(-300).size([ w-100, h ])
+
+		           var link = myChart.selectAll('line').data(links).enter()
+		                 .append('line').attr('stroke', "transparent")
+
+		           var node = myChart.selectAll('rect').data(nodes).enter()
+		                 .append('g').call(force.drag);
+
+		           node.append('rect').attr('x', function(d) {
+		              return d.x;
+		           }).attr('y', function(d) {
+		              return d.y;
+		           }).attr('width', circleWidth).attr('stroke', function(d, i) {
+		              if (i > 0) {
+		                 return "transparent" //테두리
+		              } else {
+		                 return "transparent"
+		              }
+		           }).attr('height', 20).attr('stroke', function(d, i) {
+		               if (i > 0) {
+		                  return "transparent" //테두리
+		               } else {
+		                  return "transparent"
+		               }
+		           }).attr('stroke-width', 2).attr('fill', function(d, i) {
+		              if (i > 0) {
+		                 return "transparent"
+		              } else {
+		                 return "transparent" //채우기
+		              }
+		           })
+		           
+		           node.append('text').text(function(d) {
+		              return d.name
+		           }).attr('font-family', 'LotteMartHappy').attr('fill',
+		                 function(d, i) {
+		                    if (i > 0) {
+		                       var temp = Math.floor(Math.random()*10).toString();
+		                       return palette2[temp];
+		                    } else {
+		                       return "transparent"
+		                    }
+		                 })
+		                 .on("click", function(d,i) {direct_click_search(d.name);})
+		                 .on("mouseover", function(d) {
+		               	d3.select(this).style({opacity:'0.5'});
+		                 })
+		                 .on("mouseout", function(d) {
+		               	d3.select(this).style({opacity:'1'});
+		                 })
+		                 .attr('x', function(d, i) {
+		              if (i > 0) {
+		                 return circleWidth -40
+		              } else {
+		                 return circleWidth -40
+		              }
+		           }).attr('y', function(d, i) {
+		              if (i > 0) {
+		                 return 12
+		              } else {
+		                 return 12
+		              }
+		           }).attr('text-anchor', function(d, i) {
+		              if (i > 0) {
+		                 return 'beginning'
+		              } else {
+		                 return 'end'
+		              }
+		           }).attr('font-size', function(d, i) {
+		              if (i > 0) {
+		                 return Math.floor(Math.random()*5)+14;
+		              } else {
+		                 return '20px'
+		              }
+		           }).attr('font-weight', function(d, i) {
+			              if (i > 0) {
+			                 return 'normal'
+			              } else {
+			                 return 'bold'
+			              }
+		           }).attr('cursor', function(d, i) {
+			              if (i > 0) {
+			                 return 'pointer'
+			              } else {
+			                 return 'pointer'
+			              }
+		           })
+		           
+		           force.on('tick', function(e) {
+		              node.attr('transform', function(d, i) {
+		                 return 'translate(' + d.x + ', ' + d.y + ')';
+		              })
+
+		              link.attr('x1', function(d) {
+		                 return d.source.x
+		              }).attr('y1', function(d) {
+		                 return d.source.y
+		              }).attr('x2', function(d) {
+		                 return d.target.x
+		              }).attr('y2', function(d) {
+		                 return d.target.y
+		              })
+		           })
+
+		           force.start();
+		        }('#mindMap');
+		}
+	});
+		     }(window.d3);
+
+		     
+ function showTweets(key) {
+	 $.ajax ({
+			type: "POST",
+			url: "common/showTweets.do", // 데이터를 받을 페이지
+			data: "keyword="+key,
+			cache: false,
+			success: function(data) {
+				// $('#twitter').html(data);
+				var result = JSON.parse(data);
+				/*var user = new Array();
+				var profileImage = new Array();
+				var msg = new Array();*/
+				var addTweets = '';
+				
+				if (result.length != 0 ) {
+					for (var i = 0; i < result.length; i++) {
+						addTweets += '<div class="twitter_wrapper">';
+							addTweets += '<div class="tweet-image"><img src="' + result[i].profileImage + '"></div>';
+							addTweets += '<div class="tweet-in-right">';
+							addTweets += '<div class="tweet-name"><strong>' + result[i].userName + '</strong> @' + result[i].userScreenName + '</div>'
+							addTweets += '<div class="tweet-msg">&nbsp;&nbsp;'+ result[i].msg + '</div>';
+							addTweets += '<div class="tweet-time"><img src="https://ssl.pstatic.net/sstatic/search/img3/ico_twitter2.gif" width="13" height="11" alt="트위터" data-pin-nopin="true"> ' + result[i].howLongBefore +'</div>';
+							addTweets += '</div>';
+						addTweets += '</div>';
+						
+					}
+				} else {
+					addTweets = '<div>해당 트윗 검색결과가 없습니다</div>'
+				}
+				$('#twitter').html(addTweets).animate({ scrollTop: 0 }, "slow");
+			}
+	})}
+ 
+ function showInstagram(tag) {
+	 var instagramUrl = 'https://api.instagram.com/v1/tags/' + tag + '/media/recent/?access_token=16384709.6ac06b4.49b97800d7fd4ac799a2c889f50f2587&callback=?&count=50';
+	 $.getJSON(instagramUrl, onDataLoaded);
+	 }
+ 
+ function onDataLoaded(instagram_data) {
+	var target = $("#instagram");
+	if (instagram_data.meta.code == 200) {
+	    var photos = instagram_data.data;
+	    if (photos.length > 0) {
+	        target.empty();
+	        var dt = new Date();
+	        var currentTime = parseInt(dt.getTime()/1000);
+	        
+	        var addInstagram = '';
+	        
+	        for (var key in photos) {
+	            var photo = photos[key];
+	            var howLongBefore = currentTime - photo.created_time;
+	            if (howLongBefore > 60*60*24*7*30) {
+	            	howLongBefore = parseInt(howLongBefore/30/7/24/60/60) + "개월 전";
+	            } else if (howLongBefore > 60*60*24*7) {
+	            	howLongBefore = parseInt(howLongBefore/7/24/60/60) + "주 전";
+	            } else if (howLongBefore > 60*60*24) {
+	            	howLongBefore = parseInt(howLongBefore/24/60/60) + "일 전";
+	            } else if (howLongBefore > 60*60) {
+	            	howLongBefore = parseInt(howLongBefore/60/60) + "시간 전";
+	            } else if (howLongBefore > 60) {
+	            	howLongBefore = parseInt(howLongBefore/60) + "분 전";
+	            } else {
+	            	howLongBefore = parseInt(howLongBefore) + "초 전";
+	            }
+	            
+	            addInstagram += '<div class="twitter_wrapper">';
+	            addInstagram += '<div class="insta-image"><a href="javascript:newWindowOpen(\'' + photo.link + '\')"><img src="' + photo.images.thumbnail.url + '"></div>';
+	            addInstagram += '<div class="insta-in-right">';
+	            addInstagram += '<div class="tweet-name"><strong>' + photo.user.username + '</strong></div>'
+				addInstagram += '<div class="tweet-msg">&nbsp;&nbsp;'+ photo.caption.text + '</a></div>';
+	            addInstagram += '<div class="insta-time"><img src="http://i.imgur.com/rd3fsu3.png" width="13" height="13" alt="트위터" data-pin-nopin="true"> ' + howLongBefore +'</div>';
+	            addInstagram += '</div>';
+	            addInstagram += '</div>';
+	        }
+	        target.html(addInstagram).animate({ scrollTop: 0 }, "slow");
+	    } else {
+	        target.html("인스타그램 검색 결과가 없습니다.");
+	    }
+	} else {
+	    var error = instagram_data.meta.error_message;
+	    target.html(error);
+	}
+}
+ 
+function index_onload() {
+	mainOnEvent('누리과정')
+	$('.keyword').html('\'누리과정\'에 대한 검색결과', function() {
+		$('.keyword').fadeIn('slow');
+	});
+}
+
+//채팅을 위한 검색모듈
+var isImage = 0;
+function all_search_for_chat(param)
+{
+	var query = document.getElementById("query");
+	var category = document.getElementById("category");
+	var url = "http://apis.daum.net/search/"+param;
+	url += "?output=json";
+	url += "&apikey=b62b20a07b737c1cca5b88737980adb11809762a"
+	url += "&result=20"
+	url += "&q=" + query.value;
+	url += "&callback=?";
+	
+	if (param == 'web') {
+		$('.defaultSelect').addClass('active').siblings().removeClass('active');
+	}
+	
+	if (param == 'image') {
+		isImage = 1;
+	} else {
+		isImage = 0;
+	}
+	
+	$.getJSON(url,function(data) {
+		result = "<table class='searchResult' style='border:1px solid black;'>";
+		var jsonData = data.channel.item;
+		for (var i=0; i<jsonData.length; i++)
+		{
+			// result += "<a target='_blank' style='padding: 3px;' href=\""+data.channel.item[i].link+"\"<td><img src=\""+data.channel.item[i].thumbnail	+"\"></td></a>";
+			result += '<a target="_blank" href="'+ jsonData[i].link + '">' + jsonData[i].title + '</a><br />' + jsonData[i].pubDate + '<br />'; 
+			if (typeof jsonData[i].thumbnail != "undefined") {
+				if (typeof jsonData[i].image != "undefined") {
+					result += '<a target="_blank" href="'+ jsonData[i].image + '"><img src="'+jsonData[i].thumbnail + '"></a><br />';
+				} else {
+					result += '<a target="_blank" href="'+ jsonData[i].link + '"><img src="'+jsonData[i].thumbnail + '"></a><br />';
+				}
+			}
+			if (typeof jsonData[i].description != "undefined" && typeof jsonData[i].playtime == "undefined") {
+				result += jsonData[i].description + '<br />';
+			}
+			if (typeof jsonData[i].playtime != "undefined") {
+				result += Math.floor(jsonData[i].playtime/60) +'분 ' + jsonData[i].playtime%60 + '초<br />';
+			}
+			result += '<br />'; 
+		} 
+		result += "</table>";
+		
+	}).error(function(XMLHttpRequest, textStatus, errorThrown)
+	{          
+		result = "검색어를 입력해주세요.";
+	}).complete(function(){
+		$("#results").html(result).slideDown("normal").fadeIn("normal");                                    
+	});
+}
+
+/*이미지 클릭시 새창 시작*/
+var imgObj = new Image();
+var imgW, imgH;
+function opReSize(s) {
+	imgObj.src = s
+	imgW = imgObj.width;
+	imgH = imgObj.height;
+	imgWin = window.open("","aa","width="+imgW+", height="+imgH);
+	imgWin.document.write("<body><img src="+s+"></body>");
+}
+/*이미지 클릭시 새창 끝*/
+
+// 즐겨찾기
+function favorite (id, index, n) { 
+	$.ajax ({
+		type: "POST",
+		url: "favorite.do",
+		data: {	'id' : id,
+				'index' : index,
+				'n' : n},
+		cache: false,
+		success: function(data) {
+			if(data == 'favorite-already') {
+				$('.detail-favorite-black').html("");
+				$('.detail-favorite-yellow').html("<i class='fa fa-star'></i>");
+			} else if (data == 'favorite-done') {
+				$('.detail-favorite-black').html("<i class='fa fa-star-o'></i>");
+			}
+		}
+	})
+}
+
+// 토론 덧글 공감/비공감
+function O_X (OX,IDX) {
+	$.ajax ({
+		type: "POST",
+		url: "OX.do",
+		data: {	'OX' : OX,
+				'IDX' : IDX},
+		cache: false,
+		success: function() {
+			if(OX == 'O') {
+				alert('공감 하셨습니다.');
+			} else if(OX == 'X') {
+				alert('비공감 하셨습니다.');
+			}
+		}
+	})
+}
+
+function saveNote(memo) {
+	$.ajax ({
+		type: "POST",
+		url: "/project/note/updateNote.do",
+		data: {	'memoContents' : memo},
+		cache: false,
+		success: function() {
+			alert("저장 완료");
+		}
+	})
+}
+
+//textarea 자동크기조절
+function resize(obj) {
+  obj.style.height = "0px";
+  obj.style.height = (obj.scrollHeight)+"px";
+}
+
+function openInstaNewWindow() {
+	window.open("http://192.168.1.24:8081/test/AngularInstagram.jsp","인스타그램 인기사진","location=no, width=1000px, height=745px");
+}
+
+
+/* 유튜브 */
+
+$('[data-toggle="tooltip"]').tooltip(); 
+
+function searchYoutube(keyword) {
+
+	// Clear Results
+	$('#youtubeResults').html('');
+	$('#buttons').html('');
+	
+	// Get Form Input
+	var q = keyword;
+	
+	// Run Get request on API
+	$.get(
+		"https://www.googleapis.com/youtube/v3/search", {
+			part: 'snippet, id',
+			q: q,
+			type: 'video',
+			key: 'AIzaSyDKJYxyWUDZhykA8DUVOorUbmC7J7QAAUg' },
+			function(data) {
+				var nextPageToken = data.nextPageToken;
+				var prevPageToken = data.prevPageToken;
+					
+				$.each(data.items, function(i, item) {
+					// Get Output
+					var output = getOutput(item);
+					
+					// Display Resluts
+					$('#youtubeResults').append(output);
+				});
+				
+				var buttons = getButtons(prevPageToken, nextPageToken, q);
+				
+				// Display Buttons
+				$('#buttons').append(buttons);
+	
+			}
+	);
+}
+
+// Next Button
+function nextPage(keyword) {
+	
+	var token = $('#next-button').data('token');
+	
+	// Clear Results
+	$('#youtubeResults').html('');
+	$('#buttons').html('');
+	
+	// Get Form Input
+	var q = keyword;
+	
+	// Run Get request on API
+	$.get(
+		"https://www.googleapis.com/youtube/v3/search", {
+			part: 'snippet, id',
+			pageToken: token,
+			q: q,
+			type: 'video',
+			key: 'AIzaSyDKJYxyWUDZhykA8DUVOorUbmC7J7QAAUg' },
+			function(data) {
+				var nextPageToken = data.nextPageToken;
+				var prevPageToken = data.prevPageToken;
+					
+				$.each(data.items, function(i, item) {
+					// Get Output
+					var output = getOutput(item);
+					
+					// Display Resluts
+					$('#youtubeResults').append(output);
+				});
+				
+				var buttons = getButtons(prevPageToken, nextPageToken ,q);
+				
+				attachButtons(buttons);
+			}
+	);
+}
+
+// Prev Button
+function prevPage(keyword) {
+
+	var token = $('#prev-button').data('token');
+	
+	// Clear Results
+	$('#youtubeResults').html('');
+	$('#buttons').html('');
+	
+	// Get Form Input
+	var q = keyword;
+	
+	// Run Get request on API
+	$.get(
+		"https://www.googleapis.com/youtube/v3/search", {
+			part: 'snippet, id',
+			pageToken: token,
+			q: q,
+			type: 'video',
+			key: 'AIzaSyDKJYxyWUDZhykA8DUVOorUbmC7J7QAAUg' },
+			function(data) {
+				var nextPageToken = data.nextPageToken;
+				var prevPageToken = data.prevPageToken;
+					
+				$.each(data.items, function(i, item) {
+					// Get Output
+					var output = getOutput(item);
+					
+					// Display Resluts
+					$('#youtubeResults').append(output);
+				});
+				
+				var buttons = getButtons(prevPageToken, nextPageToken, q);
+				
+				// Display Buttons
+				attachButtons(buttons);
+			}
+	);
+}
+
+// Attach buttons and then scroll to bottom
+function attachButtons(buttons) {
+	$('#buttons').html(buttons).promise().done(function() {
+		$("html, body").animate({ scrollTop: $(document).height() }, "slow");
+		  return false;
+	});
+}
+
+// scrollTo function Plugin
+// http://lions-mark.com/jquery/scrollTo/
+
+// Build Output
+function getOutput(item) {
+	var videoId = item.id.videoId;	// 비디오 ID
+	var title = item.snippet.title;	// 제목
+	var description = item.snippet.description;	// 설명
+	var thumb = item.snippet.thumbnails.medium.url;	// 썸네일
+	var channelTitle = item.snippet.channelTitle;	// 채널 제목
+	var videoDate = item.snippet.publishedAt;	// 날짜
+	
+	var output = '<li class="youtubeList">' +
+			'<a class="fancybox fancybox.iframe" title="' + 
+			title + '\n' +
+			channelTitle + '\n' + 
+			videoDate + '\n' +
+			description +
+			'" href="http://www.youtube.com/embed/'+ videoId +'">' +
+			'<img class="youtubeThumb" src="'+thumb+'" /></a>'
+			
+			+ '<div class="U-title"><strong>' + title + '</strong></div>';
+			/*+ '<div class="U-channel">' + channelTitle + '</div>'*/ 
+			/*+ '<div class="U-date">' + videoDate +'</div>'*/
+			/*+ '<div class="U-desc">' + description + '</div>';*/
+			
+	return output;
+}
+
+// Build the Buttons
+function getButtons(prevPageToken, nextPageToken, q){
+	var btnOutputDefault = '<div class="btn-container">' +
+	'<button id="next-button" class="btn btn-default" data-query="'+ q +'" '+
+	'data-token="'+ nextPageToken +'" onclick="nextPage(\''+q+'\')">다음</button>';
+	
+	if(!prevPageToken){
+		var btnOutput = btnOutputDefault + '</div>'
+	} else {
+		var btnOutput = btnOutputDefault +
+		'<button id="prev-button" class="btn btn-default" data-query="'+ q +'" ' +
+		'data-token="'+ prevPageToken +'" onclick="prevPage(\''+q+'\')">이전</button></div>'
+	}
+	return btnOutput;
+}
+
+/*유튜브 자동완성*/
+$(document).ready(function() {
+	$("#direct_search_keyword").autocomplete({
+		source: function(request, response){
+			var apiKey = 'AI39si7ZLU83bKtKd4MrdzqcjTVI3DK9FvwJR6a4kB_SW_Dbuskit-mEYqskkSsFLxN5DiG1OBzdHzYfW0zXWjxirQKyxJfdkg';
+			var query = request.term;
+			$.ajax({
+				url: "http://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube&hjson=t&cp=1&q="+query+"&key="+apiKey+"&format=5&alt=json&callback=?",  
+				dataType: 'jsonp',
+				success: function(data, textStatus, request) { 
+					response( $.map( data[1], function(item) {
+						return {
+							label: item[0],
+							value: item[0]
+						}
+					}));
+				}
+			});
+		},
+		select: function( event, ui ) {
+			$("#direct_search_keyword").html(this);
+		}
+	});
+})
+
+function changeImg( getSrc , title ) {
+	$("div.active > a > img").attr("src", getSrc);
+	$("div.active > a > div > div > p").html("");
+	$("div.active > a > div > div > h1").html(title);
+}
+
+function newWindowWeather() {
+	var url = "/project/common/weather.do";
+	W = 422;
+	H = 650;
+	Win = window.open(url,"","width="+W+", height="+H);
+}

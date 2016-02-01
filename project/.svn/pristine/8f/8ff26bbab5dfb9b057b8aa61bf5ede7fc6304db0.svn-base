@@ -1,0 +1,73 @@
+/* COMMON */
+
+/* CHAT-LIST */
+div.chatList-wrapper>table>tbody>tr>td>a {
+	text-decoration: none;
+	color: #212121;
+}
+.chatList-title {
+	text-align: center;
+	font-family: 'LotteMartHappy';
+}
+.chatList-table {
+	width: 60%;
+	margin-left: 20%;
+	margin-right: 20%;
+}
+.chatList-tr:HOVER {
+	background: #D9E5FF;
+	font-weight: bold;
+}
+.chatList-td {
+	border-bottom: 1px solid #dbdbdb;
+	height: 24px;
+	padding: 10px;
+}
+
+/* CHAT-ROOM */
+.chatRoom-wrapper {
+	width: 60%;
+	margin-left: 20%;
+	margin-right: 20%;
+	margin-bottom: 30px;
+}
+.chatRoom-left {
+	width: 55%;
+	float: left;
+}
+.chatRoom-title {
+	text-align: center;
+	padding: 20px;
+	font-size: 20px;
+	font-family: 'LotteMartHappy';
+}
+.j-message {
+	border: 1px solid gray;
+	width: 100%;
+	height: 700px;
+	overflow-y: scroll;
+	background: #ebebeb;
+	border-radius: 5px 5px 0 0;
+}
+.j-message>.joinMsg {
+	text-align: right;
+	border: 1px solid black;
+}
+.chatRoom-inputbox {
+	border-bottom: 1px solid gray;
+	border-left: 1px solid gray;
+	border-right: 1px solid gray;
+	border-radius: 0 0 5px 5px;
+}
+.chatRoom-right {
+	width: 40%;
+	float: right;
+}
+.chatRoom-note {
+	height: 800px;
+	overflow: auto;
+}
+
+
+
+

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="video">
+     
+	<select id="selectVideoList" parameterType="hashmap" resultType="hashmap">
+		<include refid="common.pagingPre"/> 
+	    <![CDATA[
+	        SELECT
+	            ROW_NUMBER() OVER (ORDER BY IDX DESC) RNUM,
+	            IDX,
+	            TITLE,
+	            CONTENTS,
+	            HIT_CNT,
+	            CREA_ID,
+	            CREA_DTM
+	        FROM
+	            VIDEO
+	    ]]>
+	    <include refid="common.pagingPost"/> 
+	</select>
+    
+	<insert id="insertVideo" parameterType="hashmap" useGeneratedKeys="true" keyProperty="IDX">
+    <selectKey keyProperty="IDX" resultType="string" order="BEFORE">
+        SELECT SEQ_VIDEO_IDX.NEXTVAL FROM DUAL
+    </selectKey>
+    <![CDATA[
+         
+        INSERT INTO VIDEO
+        (
+            IDX,
+            TITLE, 
+            CONTENTS, 
+            HIT_CNT, 
+            DEL_GB, 
+            CREA_DTM, 
+            CREA_ID
+        )
+        VALUES
+        (
+            #{IDX}, 
+            #{TITLE}, 
+            #{CONTENTS}, 
+            0, 
+            'N', 
+            SYSDATE, 
+            'Admin'
+        )
+    ]]>
+	</insert>
+
+	<update id="updateHitCnt" parameterType="hashmap">
+    <![CDATA[
+        UPDATE VIDEO 
+        SET
+            HIT_CNT = NVL(HIT_CNT, 0) + 1
+        WHERE
+            IDX = #{IDX}    
+    ]]>
+	</update>
+ 
+	<select id="selectVideoDetail" parameterType="hashmap" resultType="hashmap">
+    <![CDATA[
+        SELECT
+            IDX,
+            HIT_CNT,
+            CREA_ID,
+            CREA_DTM,
+            TITLE,
+            CONTENTS
+        FROM
+            VIDEO
+        WHERE
+            IDX = #{IDX}        
+    ]]>
+	</select>
+     
+     <update id="updateVideo" parameterType="hashmap">
+    <![CDATA[
+        UPDATE VIDEO 
+        SET
+            TITLE = #{TITLE},
+            CONTENTS = #{CONTENTS}
+        WHERE
+            IDX = #{IDX}    
+    ]]>
+	</update>
+
+	<update id="deleteVideo" parameterType="hashmap">
+    <![CDATA[
+        UPDATE VIDEO
+        SET
+            DEL_GB = 'Y'
+        WHERE
+            IDX = #{IDX}
+    ]]>
+	</update>
+
+</mapper>
